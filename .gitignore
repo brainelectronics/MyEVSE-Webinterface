@@ -6,6 +6,7 @@ thinking/
 .idea
 *.bak
 wifi-secure.json
+*/R.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
