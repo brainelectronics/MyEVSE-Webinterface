@@ -1,3 +1,12 @@
+# custom, package specific ignores
+.DS_Store
+.DS_Store?
+thinking/
+*.bin
+.idea
+*.bak
+wifi-secure.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
