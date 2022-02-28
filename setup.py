@@ -59,7 +59,7 @@ setup(
     install_requires=[
         'micropython-modbus',
         'micropython-winbond',
-        'micropython-brainelectronics-helper',
+        'micropython-brainelectronics-helpers',
         'micropython-esp-wifi-manager',
     ]
 )
