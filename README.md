@@ -1,5 +1,6 @@
 # MyEVSE Webinterface
 
+[![Downloads](https://pepy.tech/badge/myevse-webinterface)](https://pepy.tech/project/myevse-webinterface)
 ![Release](https://img.shields.io/github/v/release/brainelectronics/myevse-webinterface?include_prereleases&color=success)
 ![MicroPython](https://img.shields.io/badge/micropython-Ok-green.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
