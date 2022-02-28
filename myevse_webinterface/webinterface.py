@@ -68,6 +68,9 @@ class Webinterface(object):
         self._register_file = 'lib/registers/modbusRegisters-MyEVSE.json'
         self._tcp_port = 180
 
+        self._pixel.color = 'blue'
+        self._pixel.intensity = 20
+
         self.load_config()
 
         # default level is 'warning', may use custom logger to get initial log
@@ -78,8 +81,6 @@ class Webinterface(object):
         # from disk, default is 128
         self._wm.app.SEND_BUFSZ = 2048
         self.add_additional_webpages()
-
-        self._led.turn_on()
 
         # run garbage collector at the end to clean up
         gc.collect()
@@ -299,7 +300,6 @@ class Webinterface(object):
         Turn off the onboad LED and the Neopixel, collect the reset cause and
         available RAM after all initial steps
         """
-        self._led.turn_off()
         self._pixel.clear()
 
         self._restart_cause = machine.reset_cause()
@@ -497,6 +497,9 @@ class Webinterface(object):
         self.logger.debug('Synchronize Host-Client every {} seconds'.
                           format(self._mb_bridge.synchronisation_interval))
 
+        self._led.turn_off()
+        self._pixel.active = False
+
         # start scanning for available networks
         self._wm.scanning = True
 
@@ -534,6 +537,10 @@ class Webinterface(object):
 
         # wait a bit to safely finish the may still running threads
         time.sleep(5)
+
+        # finally turn of Neopixel and LED
+        self._pixel.clear()
+        self._led.turn_off()
 
         app_runtime = time.ticks_diff(time.ticks_ms(), self._boot_time_ticks)
         self.logger.debug('Application run time: {}ms'.format(app_runtime))
