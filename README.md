@@ -92,6 +92,18 @@ cp boot.py /pyboard
 
 ## Usage
 
+### Available Webpages
+
+| URL            | Description          | Additional info |
+|----------------|----------------------|-----------------|
+| `/scan_result` | Latest Scan result   | Available networks as JSON |
+| `/configure`   | Manage WiFi networks |                            |
+| `/data`        | MyEVSE data          | Table of MyEVSE data       |
+| `/modbus_data` | Raw Modbus data      | Latest Modbus data as JSON |
+| `/reboot`      | Reboot system        | 							 |
+| `/select`      | Select WiFi network  | 							 |
+| `/setup`       | Setup system         | 							 |
+
 ### Available ModBus registers
 
 The available registers are defined by a JSON file and placed inside the
