@@ -326,11 +326,17 @@ class Webinterface(object):
                                   func=self.save_system_config)
         self._wm.app.add_url_rule(url='/perform_reboot_system',
                                   func=self.perform_reboot_system)
+        self._wm.app.add_url_rule(url='/data', func=self.device_data)
+        self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
+        self._wm.app.add_url_rule(url='/modbus_data_table',
+                                  func=self.modbus_data_table)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
             "/setup": "Setup system",
             "/reboot": "Reboot system",
+            "/data": "MyEVSE data",
+            "/modbus_data": "Raw Modbus data",
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -626,3 +632,75 @@ class Webinterface(object):
         # redirect to '/'
         headers = {'Location': '/'}
         yield from picoweb.start_response(resp, status='303', headers=headers)
+
+    def _render_modbus_data(self, device_data: dict) -> str:
+        """
+        Render HTML table of latest device data
+
+        :param      device_data:    All device register data
+        :type       device_data:    dict
+
+        :returns:   Sub content of Modbus data page
+        :rtype:     str
+        """
+        content = ""
+
+        for reg_type, reg_type_data in sorted(device_data.items()):
+            reg_type_table = """
+            <h5>{}</h5><table class="table table-striped table-bordered"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
+            """.format(reg_type)
+
+            # iterage e.g. IREGS, sorted by register
+            for register, register_data in sorted(reg_type_data.items(),
+                                                  key=lambda item: item[1]['register']):
+                register_value = register_data['val']
+
+                if (isinstance(register_data['val'], list) and
+                    len(register_data['val']) == 2):
+                    # actual a uint32_t value, reconstruct it
+                    register_value = register_data['val'][0] << 16 | register_data['val'][1]
+
+                reg_type_table += """
+                <tr><th scope="row">{register}</th><td>{register_name}</td><td>{register_value}</td></tr>
+                """.format(register=register_data['register'],
+                           register_name=register,
+                           register_value=register_value)
+
+            # finish this table
+            reg_type_table += "</tbody></table><br>"
+
+            # add this register typte table to the overall content
+            content += reg_type_table
+
+        return content
+
+    # @app.route("/data")
+    def device_data(self, req, resp) -> None:
+        """Provide webpage listing the latest device data as table"""
+        latest_data = self._mb_bridge.client_data
+        content = self._render_modbus_data(device_data=latest_data)
+
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='data.tpl',
+                                                args=(req, content, ))
+
+    # @app.route("/modbus_data")
+    def modbus_data(self, req, resp) -> None:
+        """Provide latest modbus data as JSON"""
+        yield from picoweb.start_response(writer=resp,
+                                          content_type="application/json")
+
+        encoded = json.dumps(self._mb_bridge.client_data)
+        yield from resp.awrite(encoded)
+        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
+        # yield from resp.jsonify(self._mb_bridge.client_data)
+
+    # @app.route("/modbus_data_table")
+    def modbus_data_table(self, req, resp) -> None:
+        """Provide latest modbus data table HTML code"""
+        yield from picoweb.start_response(resp)
+
+        latest_data = self._mb_bridge.client_data
+        content = self._render_modbus_data(device_data=latest_data)
+        yield from resp.awrite(content)
