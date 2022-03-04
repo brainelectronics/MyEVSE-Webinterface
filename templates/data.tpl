@@ -21,17 +21,6 @@
     }@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
   </style>
   <style type="text/css">
-    .list-group{width:auto;max-width:460px;margin:4rem auto}
-    .form-check-input:checked+.form-checked-content{opacity:.5}
-    .form-check-input-placeholder{pointer-events:none;border-style:dashed}[contenteditable]:focus{outline:0}
-    .list-group-checkable{display:grid;gap:.5rem;border:0}
-    .list-group-checkable .list-group-item{cursor:pointer;border-radius:.5rem}
-    .list-group-item-check{position:absolute;clip:rect(0,0,0,0);pointer-events:none}
-    .list-group-item-check:hover+.list-group-item{background-color:var(--bs-light)}
-    .list-group-item-check:checked+.list-group-item{color:#fff;background-color:var(--bs-blue)}
-    .list-group-item-check:disabled+.list-group-item,.list-group-item-check[disabled]+.list-group-item{pointer-events:none;filter:none;opacity:.5}
-  </style>
-  <style type="text/css">
     body {padding:50px 80px;}
   </style>
 </head>
