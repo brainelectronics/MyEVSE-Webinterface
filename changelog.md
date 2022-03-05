@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
-## [0.2.0] - 2022-03-04
+## [0.2.0] - 2022-03-05
 ### Added
 - [`data.tpl`](templates/data.tpl) page to show latest Modbus data as table
+- [`info.tpl`](templates/info.tpl) page to show latest system data
 - `/modbus_data` endpoint to make Modbus data available as JSON
+- `/system_data` endpoint to make system data available as JSON
 - Section with available webpages introduced in [`README`](README.md)
 
 ## [0.1.0] - 2022-02-27
