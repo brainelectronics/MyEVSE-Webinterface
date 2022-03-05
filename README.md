@@ -103,6 +103,8 @@ cp boot.py /pyboard
 | `/reboot`      | Reboot system        | 							 |
 | `/select`      | Select WiFi network  | 							 |
 | `/setup`       | Setup system         | 							 |
+| `/info `       | System info          | 							 |
+| `/system_data` | Raw System info      | Latest system data as JSON |
 
 ### Available ModBus registers
 
