@@ -26,6 +26,7 @@ from be_helpers.led_helper import Led, Neopixel
 from be_helpers.modbus_bridge import ModbusBridge
 from be_helpers.path_helper import PathHelper
 from wifi_manager import WiFiManager
+from . import version as webinterface_version
 
 
 class WebinterfaceError(Exception):
@@ -330,6 +331,8 @@ class Webinterface(object):
         self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
         self._wm.app.add_url_rule(url='/modbus_data_table',
                                   func=self.modbus_data_table)
+        self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
+        self._wm.app.add_url_rule(url='/info', func=self.system_info)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
@@ -337,6 +340,8 @@ class Webinterface(object):
             "/reboot": "Reboot system",
             "/data": "MyEVSE data",
             "/modbus_data": "Raw Modbus data",
+            "/info": "System info",
+            "/system_data": "Raw system info",
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -551,6 +556,33 @@ class Webinterface(object):
         app_runtime = time.ticks_diff(time.ticks_ms(), self._boot_time_ticks)
         self.logger.debug('Application run time: {}ms'.format(app_runtime))
 
+    @property
+    def system_infos(self) -> dict:
+        # return GenericHelper.get_system_infos()
+
+        sys_info = dict()
+        memory_info = GenericHelper.get_free_memory()
+
+        # (year, month, mday, hour, minute, second, weekday, yearday)
+        # (0,    1,     2,    3,    4,      5,      6,       7)
+        seconds = int(time.ticks_ms() / 1000)
+        uptime = time.gmtime(seconds)
+        days = "{days:01d}".format(days=int(seconds / 86400))
+
+        sys_info['df'] = GenericHelper.df(path='/', unit='kB')
+        sys_info['free_ram'] = "{} kB".format(memory_info['free'] / 1000.0)
+        sys_info['total_ram'] = "{} kB".format(memory_info['total'] / 1000.0)
+        sys_info['percentage_ram'] = memory_info['percentage']
+        sys_info['frequency'] = "{} MHz".format(int(machine.freq() / 1000000))
+        sys_info['version'] = webinterface_version.__version__
+        sys_info['uptime'] = "{d} days, {hour:02d}:{min:02d}:{sec:02d}".format(
+                                d=days,
+                                hour=uptime[3],
+                                min=uptime[4],
+                                sec=uptime[5])
+
+        return sys_info
+
     # -------------------------------------------------------------------------
     # Webserver functions
 
@@ -635,7 +667,7 @@ class Webinterface(object):
 
     def _render_modbus_data(self, device_data: dict) -> str:
         """
-        Render HTML table of latest device data
+        Render HTML table of given device data
 
         :param      device_data:    All device register data
         :type       device_data:    dict
@@ -647,7 +679,7 @@ class Webinterface(object):
 
         for reg_type, reg_type_data in sorted(device_data.items()):
             reg_type_table = """
-            <h5>{}</h5><table class="table table-striped table-bordered"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
+            <h5>{}</h5><table class="table table-striped table-bordered table-hover"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
             """.format(reg_type)
 
             # iterage e.g. IREGS, sorted by register
@@ -671,6 +703,30 @@ class Webinterface(object):
 
             # add this register typte table to the overall content
             content += reg_type_table
+
+        return content
+
+    def _render_system_info(self, system_data: dict) -> str:
+        """
+        Render HTML fieldset of given system data
+
+        :param      system_data:    All system data
+        :type       system_data:    dict
+
+        :returns:   Sub content of system info page
+        :rtype:     str
+        """
+        content = "<fieldset disabled>"
+
+        for key, description in sorted(system_data['description'].items()):
+            content += """
+            <div class="mb-3">
+              <label for="{key}TextInput" class="form-label">{label}</label>
+              <input class="form-control" for="{key}TextInput" type="text" value="{value}" disabled readonly></div>
+            """.format(key=key, label=description, value=system_data[key])
+
+        # finish this fieldset
+        content += "</fieldset>"
 
         return content
 
@@ -704,3 +760,38 @@ class Webinterface(object):
         latest_data = self._mb_bridge.client_data
         content = self._render_modbus_data(device_data=latest_data)
         yield from resp.awrite(content)
+
+    # @app.route("/info")
+    def system_info(self, req, resp) -> None:
+        """Provide webpage listing the latest device data"""
+        latest_data = self.system_infos
+
+        # this defines which content is rendered on the webpage
+        # the keys listed here will be added with the description provided
+        latest_data['description'] = {
+            'df': 'Free disk space',
+            'free_ram': 'Free RAM',
+            'total_ram': 'Total RAM',
+            'percentage_ram': 'Percentage of free RAM',
+            'frequency': 'System frequency',
+            'version': 'Software version',
+            'uptime': 'System uptime'
+        }
+
+        content = self._render_system_info(system_data=latest_data)
+
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='system.tpl',
+                                                args=(req, content, ))
+
+    # @app.route("/system_data")
+    def system_data(self, req, resp) -> None:
+        """Provide latest system data as JSON"""
+        yield from picoweb.start_response(writer=resp,
+                                          content_type="application/json")
+
+        encoded = json.dumps(self.system_infos)
+        yield from resp.awrite(encoded)
+        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
+        # yield from resp.jsonify(self._mb_bridge.client_data)
