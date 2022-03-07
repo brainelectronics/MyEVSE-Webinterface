@@ -76,12 +76,17 @@ class Webinterface(object):
 
         # default level is 'warning', may use custom logger to get initial log
         self._mb_bridge = ModbusBridge(register_file=self.register_file)
+        GenericHelper.set_level(self._mb_bridge.logger, 'info')
 
         self._wm = WiFiManager()
+        GenericHelper.set_level(self._wm.logger, 'info')
         # increase buffer size on send stream operations to read bigger chunks
         # from disk, default is 128
         self._wm.app.SEND_BUFSZ = 2048
         self.add_additional_webpages()
+
+        self._pico_web_logger = GenericHelper.create_logger('picoweb')
+        GenericHelper.set_level(self._pico_web_logger, 'warning')
 
         # run garbage collector at the end to clean up
         gc.collect()
@@ -509,13 +514,17 @@ class Webinterface(object):
                           format(self._mb_bridge.synchronisation_interval))
 
         self._led.turn_off()
-        self._pixel.active = False
+        self._pixel.color = 'green'
 
         # start scanning for available networks
+        self._wm.scan_interval = 10000
         self._wm.scanning = True
 
         device_ip = self._mb_bridge._get_network_ip()
-        self._wm.run(host=device_ip, port=80, debug=True)
+        self._wm.run(host=device_ip,
+                     port=80,
+                     debug=True,
+                     log=self._pico_web_logger)
 
         self.logger.debug('Beyond WiFiManager run function')
 
@@ -534,10 +543,12 @@ class Webinterface(object):
             except KeyboardInterrupt:
                 self.logger.debug('KeyboardInterrupt, stop MB threads {}'.
                                   format(time.time() - start_time))
+                self._pixel.clear()
                 break
             except Exception as e:
                 self.logger.info('Exception during wait_for_irq: {}'.
                                  format(e))
+                self._pixel.clear()
 
         # stop data collection and provisioning threads
         self._mb_bridge.collecting_client_data = False
@@ -558,28 +569,14 @@ class Webinterface(object):
 
     @property
     def system_infos(self) -> dict:
-        # return GenericHelper.get_system_infos()
+        """
+        Get available system infos
 
-        sys_info = dict()
-        memory_info = GenericHelper.get_free_memory()
-
-        # (year, month, mday, hour, minute, second, weekday, yearday)
-        # (0,    1,     2,    3,    4,      5,      6,       7)
-        seconds = int(time.ticks_ms() / 1000)
-        uptime = time.gmtime(seconds)
-        days = "{days:01d}".format(days=int(seconds / 86400))
-
-        sys_info['df'] = GenericHelper.df(path='/', unit='kB')
-        sys_info['free_ram'] = "{} kB".format(memory_info['free'] / 1000.0)
-        sys_info['total_ram'] = "{} kB".format(memory_info['total'] / 1000.0)
-        sys_info['percentage_ram'] = memory_info['percentage']
-        sys_info['frequency'] = "{} MHz".format(int(machine.freq() / 1000000))
+        :returns:   System infos in humand readable format
+        :rtype:     dict
+        """
+        sys_info = GenericHelper.get_system_infos_human()
         sys_info['version'] = webinterface_version.__version__
-        sys_info['uptime'] = "{d} days, {hour:02d}:{min:02d}:{sec:02d}".format(
-                                d=days,
-                                hour=uptime[3],
-                                min=uptime[4],
-                                sec=uptime[5])
 
         return sys_info
 
@@ -719,11 +716,14 @@ class Webinterface(object):
         content = "<fieldset disabled>"
 
         for key, description in sorted(system_data['description'].items()):
-            content += """
-            <div class="mb-3">
-              <label for="{key}TextInput" class="form-label">{label}</label>
-              <input class="form-control" for="{key}TextInput" type="text" value="{value}" disabled readonly></div>
-            """.format(key=key, label=description, value=system_data[key])
+            try:
+                content += """
+                <div class="mb-3">
+                  <label for="{key}Text" class="form-label">{label}</label>
+                  <input class="form-control" for="{key}Text" type="text" value="{value}" disabled readonly></div>
+                """.format(key=key, label=description, value=system_data[key])
+            except Exception as e:
+                pass
 
         # finish this fieldset
         content += "</fieldset>"
