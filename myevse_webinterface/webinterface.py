@@ -384,6 +384,10 @@ class Webinterface(object):
         self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
         self._wm.app.add_url_rule(url='/info', func=self.system_info)
 
+        self._wm.app.add_url_rule(url='/update', func=self.update_system)
+        self._wm.app.add_url_rule(url='/perform_system_update',
+                                  func=self.perform_system_update)
+
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
             "/setup": "Setup system",
@@ -392,6 +396,7 @@ class Webinterface(object):
             "/modbus_data": "Raw Modbus data",
             "/info": "System info",
             "/system_data": "Raw system info",
+            "/update": "Update system",
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -836,3 +841,32 @@ class Webinterface(object):
         encoded = json.dumps(self.system_infos)
         yield from resp.awrite(encoded)
         # yield from picoweb.jsonify(self.system_infos)
+
+    # @app.route("/update")
+    def update_system(self, req, resp) -> None:
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='update.tpl',
+                                                args=(req, ))
+
+    # @app.route("/perform_system_update")
+    def perform_system_update(self, req, resp) -> None:
+        """Process system update"""
+        if req.method == 'POST':
+            yield from req.read_form_data()
+        else:  # GET, apparently
+            # Note: parse_qs() is not a coroutine, but a normal function.
+            # But you can call it using yield from too.
+            req.parse_qs()
+
+        gc.collect()
+
+        self._update_ongoing = True
+
+        import upip
+        upip.install('myevse-webinterface')
+
+        self.update_complete = True
+        # 125.147ms, approx. 2 min
+
+        yield from picoweb.jsonify(resp, {'success': True})
