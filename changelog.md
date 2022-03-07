@@ -15,7 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
-## [0.2.0] - 2022-03-05
+## [0.3.0] - 2022-03-07
+### Added
+- [`update.tpl`](templates/update.tpl) page to perform system update
+
+### Changed
+- MyEVSE webinterface version is printed after boot steps finished
+- POST call to `/perform_reboot_system` returns success JSON, instead of
+  redirecting to landing page
+
+### Fixed
+- Removed undefined variable in [`data.tpl`](templates/data.tpl)
+
+## [0.2.0] - 2022-03-07
 ### Added
 - [`data.tpl`](templates/data.tpl) page to show latest Modbus data as table
 - [`info.tpl`](templates/info.tpl) page to show latest system data
@@ -47,8 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.2.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.3.0...main
 
+[0.3.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.3.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
