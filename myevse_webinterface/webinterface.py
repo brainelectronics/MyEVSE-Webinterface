@@ -72,6 +72,9 @@ class Webinterface(object):
         self._pixel.color = 'blue'
         self._pixel.intensity = 20
 
+        self._update_complete = False
+        self._update_ongoing = False
+
         self.load_config()
 
         # default level is 'warning', may use custom logger to get initial log
@@ -238,6 +241,46 @@ class Webinterface(object):
         """
         self._connection_result = value
 
+    @property
+    def update_complete(self) -> bool:
+        """
+        Get update complete flag
+
+        :returns:   True on update completed, False otherwise
+        :rtype:     bool
+        """
+        return self._update_complete
+
+    @update_complete.setter
+    def update_complete(self, value: bool) -> None:
+        """
+        Set update complete result
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        self._update_complete = value
+
+    @property
+    def update_ongoing(self) -> bool:
+        """
+        Get update status flag
+
+        :returns:   True while update ongoing, False otherwise
+        :rtype:     bool
+        """
+        return self._update_ongoing
+
+    @update_ongoing.setter
+    def update_ongoing(self, value: bool) -> None:
+        """
+        Set update ongoing result
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        self._update_ongoing = value
+
     def load_config(self) -> None:
         """
         Load system configuration from JSON file.
@@ -332,10 +375,12 @@ class Webinterface(object):
                                   func=self.save_system_config)
         self._wm.app.add_url_rule(url='/perform_reboot_system',
                                   func=self.perform_reboot_system)
+
         self._wm.app.add_url_rule(url='/data', func=self.device_data)
         self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
         self._wm.app.add_url_rule(url='/modbus_data_table',
                                   func=self.modbus_data_table)
+
         self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
         self._wm.app.add_url_rule(url='/info', func=self.system_info)
 
@@ -749,8 +794,7 @@ class Webinterface(object):
 
         encoded = json.dumps(self._mb_bridge.client_data)
         yield from resp.awrite(encoded)
-        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
-        # yield from resp.jsonify(self._mb_bridge.client_data)
+        # yield from picoweb.jsonify(self._mb_bridge.client_data)
 
     # @app.route("/modbus_data_table")
     def modbus_data_table(self, req, resp) -> None:
@@ -793,5 +837,4 @@ class Webinterface(object):
 
         encoded = json.dumps(self.system_infos)
         yield from resp.awrite(encoded)
-        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
-        # yield from resp.jsonify(self._mb_bridge.client_data)
+        # yield from picoweb.jsonify(self.system_infos)
