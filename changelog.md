@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/modbus_data` endpoint to make Modbus data available as JSON
 - `/system_data` endpoint to make system data available as JSON
 - Section with available webpages introduced in [`README`](README.md)
+- Custom logger is handed over to WiFi Manager run function to use `WARNING`
+  logging level compared to default `DEBUG` level for Picoweb
+
+### Changed
+- WiFi manager scan interval increased from 5 to 10 seconds
+- Modbus bridge and WiFi manager logger level increased from `DEBUG` to `INFO`
+- Neopixel changes from blue to green as soon as webinterface is running
 
 ## [0.1.0] - 2022-02-27
 ### Added
