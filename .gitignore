@@ -3,6 +3,7 @@
 .DS_Store?
 thinking/
 *.bin
+*.elf
 .idea
 *.bak
 wifi-secure.json

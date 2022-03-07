@@ -26,6 +26,7 @@ from be_helpers.led_helper import Led, Neopixel
 from be_helpers.modbus_bridge import ModbusBridge
 from be_helpers.path_helper import PathHelper
 from wifi_manager import WiFiManager
+from . import version as webinterface_version
 
 
 class WebinterfaceError(Exception):
@@ -75,12 +76,17 @@ class Webinterface(object):
 
         # default level is 'warning', may use custom logger to get initial log
         self._mb_bridge = ModbusBridge(register_file=self.register_file)
+        GenericHelper.set_level(self._mb_bridge.logger, 'info')
 
         self._wm = WiFiManager()
+        GenericHelper.set_level(self._wm.logger, 'info')
         # increase buffer size on send stream operations to read bigger chunks
         # from disk, default is 128
         self._wm.app.SEND_BUFSZ = 2048
         self.add_additional_webpages()
+
+        self._pico_web_logger = GenericHelper.create_logger('picoweb')
+        GenericHelper.set_level(self._pico_web_logger, 'warning')
 
         # run garbage collector at the end to clean up
         gc.collect()
@@ -326,11 +332,21 @@ class Webinterface(object):
                                   func=self.save_system_config)
         self._wm.app.add_url_rule(url='/perform_reboot_system',
                                   func=self.perform_reboot_system)
+        self._wm.app.add_url_rule(url='/data', func=self.device_data)
+        self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
+        self._wm.app.add_url_rule(url='/modbus_data_table',
+                                  func=self.modbus_data_table)
+        self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
+        self._wm.app.add_url_rule(url='/info', func=self.system_info)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
             "/setup": "Setup system",
             "/reboot": "Reboot system",
+            "/data": "MyEVSE data",
+            "/modbus_data": "Raw Modbus data",
+            "/info": "System info",
+            "/system_data": "Raw system info",
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -498,13 +514,17 @@ class Webinterface(object):
                           format(self._mb_bridge.synchronisation_interval))
 
         self._led.turn_off()
-        self._pixel.active = False
+        self._pixel.color = 'green'
 
         # start scanning for available networks
+        self._wm.scan_interval = 10000
         self._wm.scanning = True
 
         device_ip = self._mb_bridge._get_network_ip()
-        self._wm.run(host=device_ip, port=80, debug=True)
+        self._wm.run(host=device_ip,
+                     port=80,
+                     debug=True,
+                     log=self._pico_web_logger)
 
         self.logger.debug('Beyond WiFiManager run function')
 
@@ -523,10 +543,12 @@ class Webinterface(object):
             except KeyboardInterrupt:
                 self.logger.debug('KeyboardInterrupt, stop MB threads {}'.
                                   format(time.time() - start_time))
+                self._pixel.clear()
                 break
             except Exception as e:
                 self.logger.info('Exception during wait_for_irq: {}'.
                                  format(e))
+                self._pixel.clear()
 
         # stop data collection and provisioning threads
         self._mb_bridge.collecting_client_data = False
@@ -544,6 +566,19 @@ class Webinterface(object):
 
         app_runtime = time.ticks_diff(time.ticks_ms(), self._boot_time_ticks)
         self.logger.debug('Application run time: {}ms'.format(app_runtime))
+
+    @property
+    def system_infos(self) -> dict:
+        """
+        Get available system infos
+
+        :returns:   System infos in humand readable format
+        :rtype:     dict
+        """
+        sys_info = GenericHelper.get_system_infos_human()
+        sys_info['version'] = webinterface_version.__version__
+
+        return sys_info
 
     # -------------------------------------------------------------------------
     # Webserver functions
@@ -626,3 +661,137 @@ class Webinterface(object):
         # redirect to '/'
         headers = {'Location': '/'}
         yield from picoweb.start_response(resp, status='303', headers=headers)
+
+    def _render_modbus_data(self, device_data: dict) -> str:
+        """
+        Render HTML table of given device data
+
+        :param      device_data:    All device register data
+        :type       device_data:    dict
+
+        :returns:   Sub content of Modbus data page
+        :rtype:     str
+        """
+        content = ""
+
+        for reg_type, reg_type_data in sorted(device_data.items()):
+            reg_type_table = """
+            <h5>{}</h5><table class="table table-striped table-bordered table-hover"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
+            """.format(reg_type)
+
+            # iterage e.g. IREGS, sorted by register
+            for register, register_data in sorted(reg_type_data.items(),
+                                                  key=lambda item: item[1]['register']):
+                register_value = register_data['val']
+
+                if (isinstance(register_data['val'], list) and
+                    len(register_data['val']) == 2):
+                    # actual a uint32_t value, reconstruct it
+                    register_value = register_data['val'][0] << 16 | register_data['val'][1]
+
+                reg_type_table += """
+                <tr><th scope="row">{register}</th><td>{register_name}</td><td>{register_value}</td></tr>
+                """.format(register=register_data['register'],
+                           register_name=register,
+                           register_value=register_value)
+
+            # finish this table
+            reg_type_table += "</tbody></table><br>"
+
+            # add this register typte table to the overall content
+            content += reg_type_table
+
+        return content
+
+    def _render_system_info(self, system_data: dict) -> str:
+        """
+        Render HTML fieldset of given system data
+
+        :param      system_data:    All system data
+        :type       system_data:    dict
+
+        :returns:   Sub content of system info page
+        :rtype:     str
+        """
+        content = "<fieldset disabled>"
+
+        for key, description in sorted(system_data['description'].items()):
+            try:
+                content += """
+                <div class="mb-3">
+                  <label for="{key}Text" class="form-label">{label}</label>
+                  <input class="form-control" for="{key}Text" type="text" value="{value}" disabled readonly></div>
+                """.format(key=key, label=description, value=system_data[key])
+            except Exception as e:
+                pass
+
+        # finish this fieldset
+        content += "</fieldset>"
+
+        return content
+
+    # @app.route("/data")
+    def device_data(self, req, resp) -> None:
+        """Provide webpage listing the latest device data as table"""
+        latest_data = self._mb_bridge.client_data
+        content = self._render_modbus_data(device_data=latest_data)
+
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='data.tpl',
+                                                args=(req, content, ))
+
+    # @app.route("/modbus_data")
+    def modbus_data(self, req, resp) -> None:
+        """Provide latest modbus data as JSON"""
+        yield from picoweb.start_response(writer=resp,
+                                          content_type="application/json")
+
+        encoded = json.dumps(self._mb_bridge.client_data)
+        yield from resp.awrite(encoded)
+        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
+        # yield from resp.jsonify(self._mb_bridge.client_data)
+
+    # @app.route("/modbus_data_table")
+    def modbus_data_table(self, req, resp) -> None:
+        """Provide latest modbus data table HTML code"""
+        yield from picoweb.start_response(resp)
+
+        latest_data = self._mb_bridge.client_data
+        content = self._render_modbus_data(device_data=latest_data)
+        yield from resp.awrite(content)
+
+    # @app.route("/info")
+    def system_info(self, req, resp) -> None:
+        """Provide webpage listing the latest device data"""
+        latest_data = self.system_infos
+
+        # this defines which content is rendered on the webpage
+        # the keys listed here will be added with the description provided
+        latest_data['description'] = {
+            'df': 'Free disk space',
+            'free_ram': 'Free RAM',
+            'total_ram': 'Total RAM',
+            'percentage_ram': 'Percentage of free RAM',
+            'frequency': 'System frequency',
+            'version': 'Software version',
+            'uptime': 'System uptime'
+        }
+
+        content = self._render_system_info(system_data=latest_data)
+
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='system.tpl',
+                                                args=(req, content, ))
+
+    # @app.route("/system_data")
+    def system_data(self, req, resp) -> None:
+        """Provide latest system data as JSON"""
+        yield from picoweb.start_response(writer=resp,
+                                          content_type="application/json")
+
+        encoded = json.dumps(self.system_infos)
+        yield from resp.awrite(encoded)
+        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
+        # yield from resp.jsonify(self._mb_bridge.client_data)

@@ -53,6 +53,8 @@ setup(
             [
                 'templates/reboot.tpl',
                 'templates/setup.tpl',
+                'templates/data.tpl',
+                'templates/system.tpl',
             ]
         )
     ],

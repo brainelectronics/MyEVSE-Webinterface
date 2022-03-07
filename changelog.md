@@ -15,6 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.2.0] - 2022-03-05
+### Added
+- [`data.tpl`](templates/data.tpl) page to show latest Modbus data as table
+- [`info.tpl`](templates/info.tpl) page to show latest system data
+- `/modbus_data` endpoint to make Modbus data available as JSON
+- `/system_data` endpoint to make system data available as JSON
+- Section with available webpages introduced in [`README`](README.md)
+- Custom logger is handed over to WiFi Manager run function to use `WARNING`
+  logging level compared to default `DEBUG` level for Picoweb
+
+### Changed
+- WiFi manager scan interval increased from 5 to 10 seconds
+- Modbus bridge and WiFi manager logger level increased from `DEBUG` to `INFO`
+- Neopixel changes from blue to green as soon as webinterface is running
+
 ## [0.1.0] - 2022-02-27
 ### Added
 - This changelog file
@@ -32,8 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.1.0...develop
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.2.0...main
 
+[0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
 [ref-pypi]: https://pypi.org/
