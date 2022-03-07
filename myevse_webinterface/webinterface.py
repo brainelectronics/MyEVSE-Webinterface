@@ -675,9 +675,7 @@ class Webinterface(object):
         # perform soft reset, like CTRL+D
         machine.soft_reset()
 
-        # redirect to '/'
-        headers = {'Location': '/'}
-        yield from picoweb.start_response(resp, status='303', headers=headers)
+        yield from picoweb.jsonify(resp, {'success': True})
 
     # @app.route("/save_system_config")
     def save_system_config(self, req, resp) -> None:
