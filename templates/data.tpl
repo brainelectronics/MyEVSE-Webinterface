@@ -84,10 +84,6 @@
           var content = this.responseText;
           // console.log(content);
           document.getElementById("modbus_data_table").innerHTML = content;
-
-          if (selected_bssid) {
-            document.getElementById(selected_bssid).checked = true;
-          }
         }
       };
       xmlhttp.open("GET", url);

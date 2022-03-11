@@ -72,6 +72,9 @@ class Webinterface(object):
         self._pixel.color = 'blue'
         self._pixel.intensity = 20
 
+        self._update_complete = False
+        self._update_ongoing = False
+
         self.load_config()
 
         # default level is 'warning', may use custom logger to get initial log
@@ -238,6 +241,46 @@ class Webinterface(object):
         """
         self._connection_result = value
 
+    @property
+    def update_complete(self) -> bool:
+        """
+        Get update complete flag
+
+        :returns:   True on update completed, False otherwise
+        :rtype:     bool
+        """
+        return self._update_complete
+
+    @update_complete.setter
+    def update_complete(self, value: bool) -> None:
+        """
+        Set update complete result
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        self._update_complete = value
+
+    @property
+    def update_ongoing(self) -> bool:
+        """
+        Get update status flag
+
+        :returns:   True while update ongoing, False otherwise
+        :rtype:     bool
+        """
+        return self._update_ongoing
+
+    @update_ongoing.setter
+    def update_ongoing(self, value: bool) -> None:
+        """
+        Set update ongoing result
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        self._update_ongoing = value
+
     def load_config(self) -> None:
         """
         Load system configuration from JSON file.
@@ -332,12 +375,18 @@ class Webinterface(object):
                                   func=self.save_system_config)
         self._wm.app.add_url_rule(url='/perform_reboot_system',
                                   func=self.perform_reboot_system)
+
         self._wm.app.add_url_rule(url='/data', func=self.device_data)
         self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
         self._wm.app.add_url_rule(url='/modbus_data_table',
                                   func=self.modbus_data_table)
+
         self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
         self._wm.app.add_url_rule(url='/info', func=self.system_info)
+
+        self._wm.app.add_url_rule(url='/update', func=self.update_system)
+        self._wm.app.add_url_rule(url='/perform_system_update',
+                                  func=self.perform_system_update)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
@@ -347,6 +396,7 @@ class Webinterface(object):
             "/modbus_data": "Raw Modbus data",
             "/info": "System info",
             "/system_data": "Raw system info",
+            "/update": "Update system",
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -630,9 +680,7 @@ class Webinterface(object):
         # perform soft reset, like CTRL+D
         machine.soft_reset()
 
-        # redirect to '/'
-        headers = {'Location': '/'}
-        yield from picoweb.start_response(resp, status='303', headers=headers)
+        yield from picoweb.jsonify(resp, {'success': True})
 
     # @app.route("/save_system_config")
     def save_system_config(self, req, resp) -> None:
@@ -749,8 +797,7 @@ class Webinterface(object):
 
         encoded = json.dumps(self._mb_bridge.client_data)
         yield from resp.awrite(encoded)
-        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
-        # yield from resp.jsonify(self._mb_bridge.client_data)
+        # yield from picoweb.jsonify(self._mb_bridge.client_data)
 
     # @app.route("/modbus_data_table")
     def modbus_data_table(self, req, resp) -> None:
@@ -793,5 +840,33 @@ class Webinterface(object):
 
         encoded = json.dumps(self.system_infos)
         yield from resp.awrite(encoded)
-        # https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/__init__.py#L39
-        # yield from resp.jsonify(self._mb_bridge.client_data)
+        # yield from picoweb.jsonify(self.system_infos)
+
+    # @app.route("/update")
+    def update_system(self, req, resp) -> None:
+        yield from picoweb.start_response(resp)
+        yield from self._wm.app.render_template(writer=resp,
+                                                tmpl_name='update.tpl',
+                                                args=(req, ))
+
+    # @app.route("/perform_system_update")
+    def perform_system_update(self, req, resp) -> None:
+        """Process system update"""
+        if req.method == 'POST':
+            yield from req.read_form_data()
+        else:  # GET, apparently
+            # Note: parse_qs() is not a coroutine, but a normal function.
+            # But you can call it using yield from too.
+            req.parse_qs()
+
+        gc.collect()
+
+        self._update_ongoing = True
+
+        import upip
+        upip.install('myevse-webinterface')
+
+        self.update_complete = True
+        # 125.147ms, approx. 2 min
+
+        yield from picoweb.jsonify(resp, {'success': True})

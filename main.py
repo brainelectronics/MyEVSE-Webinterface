@@ -21,8 +21,9 @@ bus address and UART communication speed are defined in the JSON file at
 # custom packages
 # pip installed packages
 from myevse_webinterface.webinterface import Webinterface
+from myevse_webinterface import version as webinterface_version
 
-print('Setup Webinterface')
+print('Setup MyEVSE Webinterface v{}'.format(webinterface_version.__version__))
 webinterface = Webinterface()
 
 # perform "boot" steps
