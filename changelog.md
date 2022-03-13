@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - All `_tpl.py` inside `/lib/templates/` will be removed after an update to
   ensure the usage and display of the latest templates content
+- All threads are stopped before a PyPi update
 - Available URLs dictionary has been updated to new
   [WiFi Manager 1.3.0][ref-wifi-manager-1.3.0] style and usage
 - Data webpage is no longer automatically updated every 10 seconds to reduce
