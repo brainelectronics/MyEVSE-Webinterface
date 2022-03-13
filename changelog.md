@@ -19,8 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - All `_tpl.py` inside `/lib/templates/` will be removed after an update to
   ensure the usage and display of the latest templates content
-- Available URLs dictionary has been updated to new WiFi Manager 1.3.0 style
-  and usage
+- Available URLs dictionary has been updated to new
+  [WiFi Manager 1.3.0][ref-wifi-manager-1.3.0] style and usage
 - Data webpage is no longer automatically updated every 10 seconds to reduce
   system load and to avoid `EOF on request start`, see [#4][ref-issue-4]
 - CPU clock speed increased from default 160MHz to 240MHz
@@ -79,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-wifi-manager-1.3.0]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager/releases/tag/1.3.0
 [ref-issue-4]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/4
 [ref-pypi]: https://pypi.org/
 [ref-pfalcon-picoweb-sdist-upip]: https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/sdist_upip.py
