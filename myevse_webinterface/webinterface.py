@@ -865,8 +865,15 @@ class Webinterface(object):
 
         import upip
         upip.install('myevse-webinterface')
+        # 125.147ms, approx. 2 min
+
+        # remove already rendered template to ensure updated ones are shown
+        import os
+        templates_path = '/lib/templates/'
+        for ele in os.listdir(templates_path):
+            if ele.endswith('_tpl.py'):
+                os.remove(templates_path + ele)
 
         self.update_complete = True
-        # 125.147ms, approx. 2 min
 
         yield from picoweb.jsonify(resp, {'success': True})
