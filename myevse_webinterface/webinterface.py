@@ -392,8 +392,8 @@ class Webinterface(object):
         self._wm.available_urls = {
             "/setup": {
                 "title": "Setup system",
-                "color": "Configure Modbus TCP port, register file and WiFi connection mode",
-                "text": "text-white bg-success",
+                "color": "text-white bg-success",
+                "text": "Configure Modbus TCP port, register file and WiFi connection mode",
             },
             "/reboot": {
                 "title": "Reboot",
