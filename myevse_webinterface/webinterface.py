@@ -58,16 +58,16 @@ class Webinterface(object):
         self._restart_cause = 0
         self._connection_result = False
 
-        self._config_data = {
-            "TCP_PORT": 180,
-            "REGISTERS": "modbusRegisters-MyEVSE.json",
-            "CONNECTION_MODE": 0
-        }
         self._config_file_path = 'config.json'
         self._rtu_pins = (25, 26)     # (TX, RX)
         self._connection_mode = 0
         self._register_file = 'lib/registers/modbusRegisters-MyEVSE.json'
         self._tcp_port = 180
+        self._config_data = {
+            "TCP_PORT": self._tcp_port,
+            "REGISTERS": self._register_file,
+            "CONNECTION_MODE": self._connection_mode
+        }
 
         self._pixel.color = 'blue'
         self._pixel.intensity = 20
