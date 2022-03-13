@@ -390,13 +390,41 @@ class Webinterface(object):
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
-            "/setup": "Setup system",
-            "/reboot": "Reboot system",
-            "/data": "MyEVSE data",
-            "/modbus_data": "Raw Modbus data",
-            "/info": "System info",
-            "/system_data": "Raw system info",
-            "/update": "Update system",
+            "/setup": {
+                "title": "Setup system",
+                "color": "Configure Modbus TCP port, register file and WiFi connection mode",
+                "text": "text-white bg-success",
+            },
+            "/reboot": {
+                "title": "Reboot",
+                "color": "text-white bg-warning",
+                "text": "Reboot system",
+            },
+            "/data": {
+                "title": "MyEVSE data",
+                "color": "text-white bg-primary",
+                "text": "Show latest MyEVSE data as table",
+            },
+            "/modbus_data": {
+                "title": "Modbus data",
+                "color": "text-white bg-info",
+                "text": "Latest MyEVSE modbus data as JSON",
+            },
+            "/info": {
+                "title": "System info",
+                "color": "text-white bg-primary",
+                "text": "Show latest system data as table",
+            },
+            "/system_data": {
+                "title": "System data",
+                "color": "text-white bg-info",
+                "text": "Latest system data as JSON",
+            },
+            "/update": {
+                "title": "Update",
+                "color": "text-white bg-warning",
+                "text": "Update system",
+            },
         }
 
     def _save_system_config(self, data: dict) -> None:
