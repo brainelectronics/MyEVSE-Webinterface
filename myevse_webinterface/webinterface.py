@@ -58,16 +58,16 @@ class Webinterface(object):
         self._restart_cause = 0
         self._connection_result = False
 
-        self._config_data = {
-            "TCP_PORT": 180,
-            "REGISTERS": "modbusRegisters-MyEVSE.json",
-            "CONNECTION_MODE": 0
-        }
         self._config_file_path = 'config.json'
         self._rtu_pins = (25, 26)     # (TX, RX)
         self._connection_mode = 0
         self._register_file = 'lib/registers/modbusRegisters-MyEVSE.json'
         self._tcp_port = 180
+        self._config_data = {
+            "TCP_PORT": self._tcp_port,
+            "REGISTERS": self._register_file,
+            "CONNECTION_MODE": self._connection_mode
+        }
 
         self._pixel.color = 'blue'
         self._pixel.intensity = 20
@@ -323,7 +323,7 @@ class Webinterface(object):
 
         try:
             # Modbus registers file path
-            self.register_file = 'lib/registers/' + cfg['REGISTERS']
+            self.register_file = cfg['REGISTERS']
         except Exception as e:
             self.logger.warning('Failed to set REGISTERS path: {}'.
                                 format(e))
@@ -390,13 +390,41 @@ class Webinterface(object):
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
-            "/setup": "Setup system",
-            "/reboot": "Reboot system",
-            "/data": "MyEVSE data",
-            "/modbus_data": "Raw Modbus data",
-            "/info": "System info",
-            "/system_data": "Raw system info",
-            "/update": "Update system",
+            "/setup": {
+                "title": "Setup system",
+                "color": "Configure Modbus TCP port, register file and WiFi connection mode",
+                "text": "text-white bg-success",
+            },
+            "/reboot": {
+                "title": "Reboot",
+                "color": "text-white bg-warning",
+                "text": "Reboot system",
+            },
+            "/data": {
+                "title": "MyEVSE data",
+                "color": "text-white bg-primary",
+                "text": "Show latest MyEVSE data as table",
+            },
+            "/modbus_data": {
+                "title": "Modbus data",
+                "color": "text-white bg-info",
+                "text": "Latest MyEVSE modbus data as JSON",
+            },
+            "/info": {
+                "title": "System info",
+                "color": "text-white bg-primary",
+                "text": "Show latest system data as table",
+            },
+            "/system_data": {
+                "title": "System data",
+                "color": "text-white bg-info",
+                "text": "Latest system data as JSON",
+            },
+            "/update": {
+                "title": "Update",
+                "color": "text-white bg-warning",
+                "text": "Update system",
+            },
         }
 
     def _save_system_config(self, data: dict) -> None:
@@ -859,14 +887,33 @@ class Webinterface(object):
             # But you can call it using yield from too.
             req.parse_qs()
 
+        # stop data collection and provisioning threads
+        self._mb_bridge.collecting_client_data = False
+        self._mb_bridge.provisioning_host_data = False
+
+        # stop WiFi scanning thread
+        self._wm.scanning = False
+
+        self._pixel.color = 'yellow'
+
+        # wait a bit to safely finish the may still running threads
+        time.sleep(5)
+
         gc.collect()
 
         self._update_ongoing = True
 
         import upip
         upip.install('myevse-webinterface')
+        # 125.147ms, approx. 2 min
+
+        # remove already rendered template to ensure updated ones are shown
+        import os
+        templates_path = '/lib/templates/'
+        for ele in os.listdir(templates_path):
+            if ele.endswith('_tpl.py'):
+                os.remove(templates_path + ele)
 
         self.update_complete = True
-        # 125.147ms, approx. 2 min
 
         yield from picoweb.jsonify(resp, {'success': True})

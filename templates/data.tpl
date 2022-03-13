@@ -53,7 +53,7 @@
     window.onload = function(e) {
       setTimeout(showPage, 1000);
       setTimeout(get_new_data, 100);
-      var myInterval = setInterval(get_new_data, 10000);
+      // var myInterval = setInterval(get_new_data, 10000);
       setInterval(setDataAgeTime, 1000);
     };
     function showPage() {
@@ -87,6 +87,7 @@
         }
       };
       xmlhttp.open("GET", url);
+      // xmlhttp.timeout = 2000;   // leads to OSError: [Errno 104] ECONNRESET
       xmlhttp.send();
       // reset time of data age to zero
       totalSeconds = 0;
