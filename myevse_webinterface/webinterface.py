@@ -323,7 +323,7 @@ class Webinterface(object):
 
         try:
             # Modbus registers file path
-            self.register_file = 'lib/registers/' + cfg['REGISTERS']
+            self.register_file = cfg['REGISTERS']
         except Exception as e:
             self.logger.warning('Failed to set REGISTERS path: {}'.
                                 format(e))
