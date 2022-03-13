@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.4.1] - 2022-03-13
+### Fixed
+- System setup card text and color content were mixed up
+
 ## [0.4.0] - 2022-03-13
 ### Changed
 - All `_tpl.py` inside `/lib/templates/` will be removed after an update to
@@ -73,8 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.4.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.4.1...main
 
+[0.4.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.1
 [0.4.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.0
 [0.3.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.3.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
