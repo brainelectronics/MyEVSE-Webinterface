@@ -887,6 +887,18 @@ class Webinterface(object):
             # But you can call it using yield from too.
             req.parse_qs()
 
+        # stop data collection and provisioning threads
+        self._mb_bridge.collecting_client_data = False
+        self._mb_bridge.provisioning_host_data = False
+
+        # stop WiFi scanning thread
+        self._wm.scanning = False
+
+        self._pixel.color = 'yellow'
+
+        # wait a bit to safely finish the may still running threads
+        time.sleep(5)
+
         gc.collect()
 
         self._update_ongoing = True
