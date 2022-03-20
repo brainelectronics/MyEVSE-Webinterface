@@ -596,9 +596,8 @@ class Webinterface(object):
         self._led.turn_off()
         self._pixel.color = 'green'
 
-        # start scanning for available networks
+        # set scanning interval, scan is started on property access
         self._wm.scan_interval = 10000
-        self._wm.scanning = True
 
         device_ip = self._mb_bridge._get_network_ip()
         self._wm.run(host=device_ip,
