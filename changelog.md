@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.5.0] - 2022-03-20
+### Added
+- Versions of [WiFi Manager][ref-wifi-manager] and
+  [micropython be helpers][ref-micropython-modules] added to system info dict
+- [Quickstart](QUICKSTART.md) guide
+
+### Changed
+- Scanning thread is no longer started by webinterface.
+  [WiFi Manager 1.4.0][ref-wifi-manager-1.4.0] is starting the thread on the
+  property access
+
 ## [0.4.1] - 2022-03-13
 ### Fixed
 - System setup card text and color content were mixed up
@@ -77,14 +88,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.4.1...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.5.0...main
 
+[0.5.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.5.0
 [0.4.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.1
 [0.4.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.0
 [0.3.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.3.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-wifi-manager]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager
+[ref-wifi-manager-1.4.0]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager/releases/tag/1.4.0
+[ref-micropython-modules]: https://github.com/brainelectronics/micropython-modules
 [ref-wifi-manager-1.3.0]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager/releases/tag/1.3.0
 [ref-issue-4]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/4
 [ref-pypi]: https://pypi.org/

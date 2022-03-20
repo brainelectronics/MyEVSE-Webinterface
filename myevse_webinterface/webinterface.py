@@ -21,10 +21,12 @@ import time
 # https://github.com/pfalcon/picoweb
 import picoweb
 # https://github.com/brainelectronics/micropython-modules
+from be_helpers import version as be_helpers_version
 from be_helpers.generic_helper import GenericHelper
 from be_helpers.led_helper import Led, Neopixel
 from be_helpers.modbus_bridge import ModbusBridge
 from be_helpers.path_helper import PathHelper
+from wifi_manager import version as wifi_manager_version
 from wifi_manager import WiFiManager
 from . import version as webinterface_version
 
@@ -594,9 +596,8 @@ class Webinterface(object):
         self._led.turn_off()
         self._pixel.color = 'green'
 
-        # start scanning for available networks
+        # set scanning interval, scan is started on property access
         self._wm.scan_interval = 10000
-        self._wm.scanning = True
 
         device_ip = self._mb_bridge._get_network_ip()
         self._wm.run(host=device_ip,
@@ -655,6 +656,8 @@ class Webinterface(object):
         """
         sys_info = GenericHelper.get_system_infos_human()
         sys_info['version'] = webinterface_version.__version__
+        sys_info['version_be_helpers'] = be_helpers_version.__version__
+        sys_info['version_wifi_manager'] = wifi_manager_version.__version__
 
         return sys_info
 
@@ -849,7 +852,9 @@ class Webinterface(object):
             'total_ram': 'Total RAM',
             'percentage_ram': 'Percentage of free RAM',
             'frequency': 'System frequency',
-            'version': 'Software version',
+            'version': 'Software version Webinterface',
+            'version_be_helpers': 'Software version helpers',
+            'version_wifi_manager': 'Software version WiFiManager',
             'uptime': 'System uptime'
         }
 
