@@ -24,6 +24,20 @@ esptool.py --chip esp32 --port /dev/tty.SLAB_USBtoUART --baud 921600 write_flash
 
 ### Install package on board with pip
 
+```bash
+rshell -p /dev/tty.SLAB_USBtoUART --editor nano
+```
+
+Inside the rshell
+
+```bash
+cp main.py /pyboard
+cp boot.py /pyboard
+repl
+```
+
+Inside the REPL
+
 ```python
 import machine
 import network
