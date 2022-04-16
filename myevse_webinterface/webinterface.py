@@ -38,6 +38,10 @@ class WebinterfaceError(Exception):
 
 class Webinterface(object):
     """docstring for Webinterface"""
+    SETUP_MODE = 0
+    CLIENT_MODE = 1
+    ACCESSPOINT_MODE = 2
+
     def __init__(self, logger=None, quiet=False, name=__name__):
         # setup and configure logger if none is provided
         if logger is None:
@@ -479,13 +483,13 @@ class Webinterface(object):
 
         connection_mode = self.connection_mode
 
-        if connection_mode == 0:
+        if connection_mode == self.SETUP_MODE:
             # device connection not yet configured
             self._wm.start_config()
-        elif connection_mode == 1:
+        elif connection_mode == self.CLIENT_MODE:
             # device connection configured
             connection_result = self._wm.load_and_connect()
-        elif connection_mode == 2:
+        elif connection_mode == self.ACCESSPOINT_MODE:
             # device configured as AccessPoint
             # abuse connection_result variable to create an AccessPoint later on
             connection_result = False
@@ -672,11 +676,11 @@ class Webinterface(object):
         client_checked = ""
         ap_checked = ""
 
-        if connection_mode == 0:
+        if connection_mode == self.SETUP_MODE:
             setup_checked = "checked"
-        elif connection_mode == 1:
+        elif connection_mode == self.CLIENT_MODE:
             client_checked = "checked"
-        elif connection_mode == 2:
+        elif connection_mode == self.ACCESSPOINT_MODE:
             ap_checked = "checked"
 
         yield from picoweb.start_response(resp)
