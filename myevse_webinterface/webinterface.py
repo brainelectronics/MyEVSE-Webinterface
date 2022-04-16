@@ -382,17 +382,8 @@ class Webinterface(object):
         self._wm.app.add_url_rule(url='/perform_reboot_system',
                                   func=self.perform_reboot_system)
 
-        self._wm.app.add_url_rule(url='/data', func=self.device_data)
-        self._wm.app.add_url_rule(url='/modbus_data', func=self.modbus_data)
-        self._wm.app.add_url_rule(url='/modbus_data_table',
-                                  func=self.modbus_data_table)
-
         self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
         self._wm.app.add_url_rule(url='/info', func=self.system_info)
-
-        self._wm.app.add_url_rule(url='/update', func=self.update_system)
-        self._wm.app.add_url_rule(url='/perform_system_update',
-                                  func=self.perform_system_update)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
@@ -406,16 +397,6 @@ class Webinterface(object):
                 "color": "text-white bg-warning",
                 "text": "Reboot system",
             },
-            "/data": {
-                "title": "MyEVSE data",
-                "color": "text-white bg-primary",
-                "text": "Show latest MyEVSE data as table",
-            },
-            "/modbus_data": {
-                "title": "Modbus data",
-                "color": "text-white bg-info",
-                "text": "Latest MyEVSE modbus data as JSON",
-            },
             "/info": {
                 "title": "System info",
                 "color": "text-white bg-primary",
@@ -426,12 +407,42 @@ class Webinterface(object):
                 "color": "text-white bg-info",
                 "text": "Latest system data as JSON",
             },
-            "/update": {
-                "title": "Update",
-                "color": "text-white bg-warning",
-                "text": "Update system",
-            },
         }
+
+        # add Modbus data pages only if device is setup as client or AP
+        if self.connection_mode in [self.CLIENT_MODE, self.ACCESSPOINT_MODE]:
+            self._wm.app.add_url_rule(url='/data', func=self.device_data)
+            self._wm.app.add_url_rule(url='/modbus_data',
+                                      func=self.modbus_data)
+            self._wm.app.add_url_rule(url='/modbus_data_table',
+                                      func=self.modbus_data_table)
+
+            self._wm.available_urls.update({
+                "/data": {
+                    "title": "MyEVSE data",
+                    "color": "text-white bg-primary",
+                    "text": "Show latest MyEVSE data as table",
+                },
+                "/modbus_data": {
+                    "title": "Modbus data",
+                    "color": "text-white bg-info",
+                    "text": "Latest MyEVSE modbus data as JSON",
+                },
+            })
+
+        # add update page only in client mode
+        if self.connection_mode in [self.CLIENT_MODE]:
+            self._wm.app.add_url_rule(url='/update', func=self.update_system)
+            self._wm.app.add_url_rule(url='/perform_system_update',
+                                      func=self.perform_system_update)
+
+            self._wm.available_urls.update({
+                "/update": {
+                    "title": "Update",
+                    "color": "text-white bg-warning",
+                    "text": "Update system",
+                },
+            })
 
     def _save_system_config(self, data: dict) -> None:
         """
