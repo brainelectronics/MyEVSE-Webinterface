@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.6.0] - 2022-04-16
+### Changed
+- Modbus data pages are only available in client or access point mode, update
+  page only in client mode, see [#10][ref-issue-10]
+
+### Fixed
+- Added missing steps to copy [`boot.py`](boot.py) and [`main.py`](main.py)
+  files in [Quickstart](QUICKSTART.md) guide
+
 ## [0.5.0] - 2022-03-20
 ### Added
 - Versions of [WiFi Manager][ref-wifi-manager] and
@@ -88,8 +97,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.5.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.6.0...main
 
+[0.6.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.6.0
 [0.5.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.5.0
 [0.4.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.1
 [0.4.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.0
@@ -97,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-10]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/10
 [ref-wifi-manager]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager
 [ref-wifi-manager-1.4.0]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager/releases/tag/1.4.0
 [ref-micropython-modules]: https://github.com/brainelectronics/micropython-modules
