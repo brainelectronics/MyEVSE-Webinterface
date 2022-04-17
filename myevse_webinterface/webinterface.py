@@ -524,7 +524,11 @@ class Webinterface(object):
             time.sleep(1)
 
             # create a true AccessPoint without any active Station mode
-            self._wm.wh.create_ap(ssid='MyEVSE',
+            ap_name = 'MyEVSE_{}'.format(
+                GenericHelper.get_uuid(4).decode('ascii'))
+            self.logger.info('Starting MyEVSE in AccessPoint mode named "{}"'.
+                             format(ap_name))
+            self._wm.wh.create_ap(ssid=ap_name,
                                   password='',
                                   channel=11,
                                   timeout=5)
