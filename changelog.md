@@ -19,7 +19,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
-## [0.7.0] - 2022-04-16
+## [0.7.0] - 2022-04-17
 ### Changed
 - AccessPoint of MyEVSE is named `MyEVSE_xxxx` with `xxxx` as the first four
   characters of the UUID of the device, see [#14][ref-issue-14]
