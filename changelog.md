@@ -11,10 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 -->
+<!--
+RegEx for release version from file
+r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
+-->
 
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.7.0] - 2022-04-17
+### Changed
+- AccessPoint of MyEVSE is named `MyEVSE_xxxx` with `xxxx` as the first four
+  characters of the UUID of the device, see [#14][ref-issue-14]
+
 ## [0.6.0] - 2022-04-16
 ### Changed
 - Modbus data pages are only available in client or access point mode, update
@@ -97,8 +106,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.6.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.7.0...main
 
+[0.7.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.7.0
 [0.6.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.6.0
 [0.5.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.5.0
 [0.4.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.4.1
@@ -107,6 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-14]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/14
 [ref-issue-10]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/10
 [ref-wifi-manager]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager
 [ref-wifi-manager-1.4.0]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager/releases/tag/1.4.0
