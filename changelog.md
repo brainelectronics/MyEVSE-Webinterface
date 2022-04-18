@@ -19,6 +19,15 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.8.0] - 2022-04-18
+### Changed
+- `/setup` and `/reboot` pages show success banner after posting new config
+  data and triggering a reboot . `/setup` does not redirect anymore after
+  submitting the config. The reboot of the system is done after the response
+  has been sent to from the system. A circular progressbar is shown as long as
+  the reboot progress is active and redirects to the index page after 45 sec
+  which should be enough to fully reboot the system, see [#16][ref-issue-16]
+
 ## [0.7.0] - 2022-04-17
 ### Changed
 - AccessPoint of MyEVSE is named `MyEVSE_xxxx` with `xxxx` as the first four
@@ -106,8 +115,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.7.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.0...main
 
+[0.8.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.0
 [0.7.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.7.0
 [0.6.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.6.0
 [0.5.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.5.0
@@ -117,6 +127,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-16]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/16
 [ref-issue-14]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/14
 [ref-issue-10]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/10
 [ref-wifi-manager]: https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager

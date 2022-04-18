@@ -7,6 +7,7 @@
   <meta name="author" content="Jonas Scharpf aka brainelectronics">
   <title>Reboot system</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <script type="text/javascript" src="toast.js"></script>
   <style type="text/css">
     .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-color:gray;color:#fff;opacity:1;transition:.5s;visibility:visible}
     .overlay.hidden{opacity:0;visibility:hidden}
@@ -32,6 +33,7 @@
 <body>
   <div id="overlay" class="overlay">
     <div id="loader" class="loader"></div>
+    <canvas id="circularLoader" width="200" height="200" style="position:absolute;left:50%;top:50%;z-index:1;width:120px;height:120px;margin:-76px 0 0 -76px;"></canvas>
   </div>
 
   <div style="display:none;" id="myDiv" class="animate-bottom">
@@ -47,6 +49,7 @@
       </form>
     </div>
   </div>
+  <div id="alert_container" style="position: fixed;z-index: 9999;top: 20px;right: 20px;"></div>
 
   <script>
     window.onload = function(e) {
@@ -55,13 +58,49 @@
     function showPage() {
       document.getElementById("loader").style.display = "none";
       document.getElementById("myDiv").style.display = "block";
-      //document.getElementById("rcorners3").style.display = "block";
       document.getElementById("overlay").style.display = "none";
     };
     document.getElementById("perform_reboot_system_form").onsubmit = function(e) {
-      window.onbeforeunload = null;
-      return confirm("Are you sure you want to reboot?");
+      var res = confirm("Rebooting the system?");
+      if (res) {
+        var xmlhttp = new XMLHttpRequest();
+        var url = '/perform_reboot_system';
+        xmlhttp.open('POST', url, true);
+        var data = JSON.stringify({"reboot": true});
+        xmlhttp.send(data);
+        createToast('alert-success', 'Success!', 'System is rebooting...', 45000);
+        startProgress(1, 450);
+      }
+      return res;
     };
+    var ctx = document.getElementById('circularLoader').getContext('2d');
+    var diff,sim,val=0,start=4.72,cw=ctx.canvas.width,ch=ctx.canvas.height;
+    function progressCircle(inc) {
+      val += inc;
+      if(val < 0){val = 0};
+      if(val > 100){val = 100};
+      diff = ((val / 100) * Math.PI*2*10).toFixed(2);
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.lineWidth = 17;
+      ctx.fillStyle = '#f3f3f3';
+      ctx.strokeStyle = '#f3f3f3';
+      ctx.textAlign = "center";
+      ctx.font = "28px monospace";
+      ctx.fillText(val+'%', cw*.52, ch*.5+5, cw+12);
+      ctx.beginPath();
+      ctx.arc(100, 100, 75, start, diff/10+start, false);
+      ctx.stroke();
+      if(val >= 100){
+        clearTimeout(sim);
+        window.location='/';
+      }
+    }
+    function startProgress(inc, t){
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("myDiv").style.display = "none";
+      progressCircle(inc);
+      sim = setInterval(function() {progressCircle(inc)}, t);
+    }
   </script>
 </body>
 </html>

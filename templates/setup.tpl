@@ -8,6 +8,7 @@
   <meta name="author" content="Jonas Scharpf aka brainelectronics">
   <title>Setup system</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <script type="text/javascript" src="toast.js"></script>
   <style type="text/css">
     .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-color:gray;color:#fff;opacity:1;transition:.5s;visibility:visible}
     .overlay.hidden{opacity:0;visibility:hidden}
@@ -87,6 +88,7 @@
     </div>
     </div>
   </div>
+  <div id="alert_container" style="position: fixed;z-index: 9999;top: 20px;right: 20px;"></div>
 
   <script>
     window.onload = function(e) {
@@ -95,11 +97,10 @@
     function showPage() {
       document.getElementById("loader").style.display = "none";
       document.getElementById("myDiv").style.display = "block";
-      //document.getElementById("rcorners3").style.display = "block";
       document.getElementById("overlay").style.display = "none";
     };
     document.getElementById("save_system_config_form").onsubmit = function(e) {
-      window.onbeforeunload = null;
+      createToast('alert-success', 'Success!', 'Configuration updated', 5000);
       return true;
     };
   </script>

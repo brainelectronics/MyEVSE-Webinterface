@@ -727,10 +727,11 @@ class Webinterface(object):
             # But you can call it using yield from too.
             req.parse_qs()
 
+        # empty response to avoid any redirects or errors due to none response
+        yield from picoweb.start_response(resp, status='204')
+
         # perform soft reset, like CTRL+D
         machine.soft_reset()
-
-        yield from picoweb.jsonify(resp, {'success': True})
 
     # @app.route("/save_system_config")
     def save_system_config(self, req, resp) -> None:
@@ -756,9 +757,8 @@ class Webinterface(object):
 
         self._save_system_config(data=form_data)
 
-        # redirect to '/'
-        headers = {'Location': '/'}
-        yield from picoweb.start_response(resp, status='303', headers=headers)
+        # empty response to avoid any redirects or errors due to none response
+        yield from picoweb.start_response(resp, status='204')
 
     def _render_modbus_data(self, device_data: dict) -> str:
         """
