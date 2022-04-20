@@ -69,7 +69,7 @@
         var data = JSON.stringify({"reboot": true});
         xmlhttp.send(data);
         createToast('alert-success', 'Success!', 'System is rebooting...', 45000);
-        startProgress(1, 450);
+        startProgress(1, 600);
       }
       return res;
     };
