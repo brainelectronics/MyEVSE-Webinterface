@@ -63,6 +63,9 @@
     document.getElementById("perform_reboot_system_form").onsubmit = function(e) {
       var res = confirm("Rebooting the system?");
       if (res) {
+        // do not redirect somewhere
+        e.preventDefault();
+        window.onbeforeunload = null;
         var xmlhttp = new XMLHttpRequest();
         var url = '/perform_reboot_system';
         xmlhttp.open('POST', url, true);
