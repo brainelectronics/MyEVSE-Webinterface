@@ -63,13 +63,16 @@
     document.getElementById("perform_reboot_system_form").onsubmit = function(e) {
       var res = confirm("Rebooting the system?");
       if (res) {
+        // do not redirect somewhere
+        e.preventDefault();
+        window.onbeforeunload = null;
         var xmlhttp = new XMLHttpRequest();
         var url = '/perform_reboot_system';
         xmlhttp.open('POST', url, true);
         var data = JSON.stringify({"reboot": true});
         xmlhttp.send(data);
         createToast('alert-success', 'Success!', 'System is rebooting...', 45000);
-        startProgress(1, 450);
+        startProgress(1, 600);
       }
       return res;
     };

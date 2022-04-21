@@ -736,14 +736,18 @@ class Webinterface(object):
     # @app.route("/save_system_config")
     def save_system_config(self, req, resp) -> None:
         """Process saving the specified system configs"""
+        """
         if req.method == 'POST':
             yield from req.read_form_data()
         else:  # GET, apparently
             # Note: parse_qs() is not a coroutine, but a normal function.
             # But you can call it using yield from too.
             req.parse_qs()
-
-        form_data = req.form
+        """
+        size = int(req.headers[b"Content-Length"])
+        data = yield from req.reader.readexactly(size)
+        decoded_data = data.decode()
+        form_data = GenericHelper.str_to_dict(data=decoded_data)
 
         # Whether form data comes from GET or POST request, once parsed,
         # it's available as req.form dictionary

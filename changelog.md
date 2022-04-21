@@ -19,6 +19,15 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.8.1] - 2022-04-20
+### Changed
+- Form post of `/setup` changed to vanilla JavaScript JSON post
+
+### Fixed
+- Increase spinner time at `/reboot` from 45 to 60 seconds to ensure a full
+  reboot of the device, see [#16][ref-issue-16]
+- Prevent redirection to POST URL on `/reboot` and `/setup` pages
+
 ## [0.8.0] - 2022-04-18
 ### Changed
 - `/setup` and `/reboot` pages show success banner after posting new config
@@ -115,8 +124,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.1...main
 
+[0.8.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.1
 [0.8.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.0
 [0.7.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.7.0
 [0.6.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.6.0
@@ -127,6 +137,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-17]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/17
 [ref-issue-16]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/16
 [ref-issue-14]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/14
 [ref-issue-10]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/10

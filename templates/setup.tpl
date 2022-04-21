@@ -100,6 +100,16 @@
       document.getElementById("overlay").style.display = "none";
     };
     document.getElementById("save_system_config_form").onsubmit = function(e) {
+      // do not redirect somewhere
+      e.preventDefault();
+      window.onbeforeunload = null;
+      var xmlhttp = new XMLHttpRequest();
+      var url = '/save_system_config';
+      xmlhttp.open('POST', url, true);
+      var formData = new FormData(document.getElementById("save_system_config_form"));
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      var data = JSON.stringify(Object.fromEntries(formData));
+      xmlhttp.send(data);
       createToast('alert-success', 'Success!', 'Configuration updated', 5000);
       return true;
     };
