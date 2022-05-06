@@ -525,7 +525,7 @@ class Webinterface(object):
 
             # create a true AccessPoint without any active Station mode
             ap_name = 'MyEVSE_{}'.format(
-                GenericHelper.get_uuid(4).decode('ascii'))
+                GenericHelper.get_uuid(-4).decode('ascii'))
             self.logger.info('Starting MyEVSE in AccessPoint mode named "{}"'.
                              format(ap_name))
             self._wm.wh.create_ap(ssid=ap_name,
