@@ -19,6 +19,11 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.8.2] - 2022-05-06
+### Fixed
+- Use last 4 characters of UUID as unique AccessPoint name, see additional
+  comment in [#14][ref-issue-14]
+
 ## [0.8.1] - 2022-04-20
 ### Changed
 - Form post of `/setup` changed to vanilla JavaScript JSON post
@@ -124,8 +129,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.1...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.2...main
 
+[0.8.2]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.2
 [0.8.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.1
 [0.8.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.0
 [0.7.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.7.0
