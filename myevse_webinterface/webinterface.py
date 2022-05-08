@@ -375,6 +375,7 @@ class Webinterface(object):
 
         Add system setup and reboot pages to the list of available URLs
         """
+        self._wm.app.add_url_rule(url='/favicon.ico', func=self.serve_favicon)
         self._wm.app.add_url_rule(url='/setup', func=self.system_config)
         self._wm.app.add_url_rule(url='/reboot', func=self.reboot_system)
         self._wm.app.add_url_rule(url='/save_system_config',
@@ -682,6 +683,10 @@ class Webinterface(object):
 
     # -------------------------------------------------------------------------
     # Webserver functions
+    # @app.route("/favicon.ico")
+    def serve_favicon(self, req, resp) -> None:
+        # yield from picoweb.sendfile(resp, "favicon.ico")
+        yield from picoweb.start_response(resp, status='204')
 
     # @app.route("/setup")
     def system_config(self, req, resp) -> None:

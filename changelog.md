@@ -19,6 +19,11 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.8.3] - 2022-05-08
+### Fixed
+- Respond with `204 No Conent` on favicon request to avoid `404` on webpages,
+  see [#12][ref-issue-12]
+
 ## [0.8.2] - 2022-05-06
 ### Fixed
 - Use last 4 characters of UUID as unique AccessPoint name, see additional
@@ -129,8 +134,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.2...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.3...main
 
+[0.8.3]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.3
 [0.8.2]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.2
 [0.8.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.1
 [0.8.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.0
@@ -143,6 +149,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-12]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/12
 [ref-issue-17]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/17
 [ref-issue-16]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/16
 [ref-issue-14]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/14
