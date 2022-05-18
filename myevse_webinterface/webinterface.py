@@ -320,21 +320,21 @@ class Webinterface(object):
         """Update config properties saved in config JSON file"""
         try:
             # WiFi connection mode
-            self.connection_mode = int(cfg['CONNECTION_MODE'])
+            self.connection_mode = int(self.config_data['CONNECTION_MODE'])
         except Exception as e:
             self.logger.warning('Failed to load CONNECTION_MODE as int: {}'.
                                 format(e))
 
         try:
             # TCP port for Modbus connection
-            self.tcp_port = int(cfg['TCP_PORT'])
+            self.tcp_port = int(self.config_data['TCP_PORT'])
         except Exception as e:
             self.logger.warning('Failed to load TCP_PORT as int: {}'.
                                 format(e))
 
         try:
             # Modbus registers file path
-            self.register_file = cfg['REGISTERS']
+            self.register_file = self.config_data['REGISTERS']
         except Exception as e:
             self.logger.warning('Failed to set REGISTERS path: {}'.
                                 format(e))
