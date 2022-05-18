@@ -122,6 +122,7 @@ class Webinterface(object):
         """
         if isinstance(value, dict):
             self._config_data = value
+            self._update_config_properties()
         else:
             raise WebinterfaceError('Config data shall type dict, not: {}'.
                                     format(type(value)))
@@ -313,6 +314,10 @@ class Webinterface(object):
             self.logger.debug('Created file with default values: {}'.
                               format(cfg))
 
+        self._update_config_properties()
+
+    def _update_config_properties(self) -> None:
+        """Update config properties saved in config JSON file"""
         try:
             # WiFi connection mode
             self.connection_mode = int(cfg['CONNECTION_MODE'])
