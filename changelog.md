@@ -19,6 +19,12 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.8.4] - 2022-05-18
+### Fixed
+- Changing a system config value updates always the config properties to
+  ensure a changed value is not only reflected after a reboot of the system,
+  see [#22][ref-issue-22]
+
 ## [0.8.3] - 2022-05-08
 ### Fixed
 - Respond with `204 No Conent` on favicon request to avoid `404` on webpages,
@@ -134,8 +140,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.3...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.4...main
 
+[0.8.4]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.4
 [0.8.3]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.3
 [0.8.2]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.2
 [0.8.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.1
@@ -149,6 +156,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-issue-22]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/22
 [ref-issue-12]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/12
 [ref-issue-17]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/17
 [ref-issue-16]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/16
