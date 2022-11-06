@@ -19,6 +19,23 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.9.0] - 2022-11-06
+### Added
+- The user can choose between the latest stable or latest test release version
+  at the update page of the MyEVSE-Webinterface
+- Further custom packages can be installed from the index depending on the
+  previously mentioned selection. The custom packages will be installed after the update of MyEVSE-Webinterface has been performed. Thereby a custom
+  package might overwrite an already installed package version.
+- Deploy to [Test Python Package Index](https://test.pypi.org/) on every PR
+  build with a [PEP440][ref-pep440] compliant `-rc<BUILDNUMBER>.dev<PR_NUMBER>`
+  meta data extension
+- [Test release workflow](.github/workflows/test-release.yaml) running only on
+  PRs is archiving and uploading built artifacts to
+  [Test Python Package Index](https://test.pypi.org/)
+
+### Fixed
+- All uncovered flake8 warnings of [`myevse_webinterface`](myevse_webinterface)
+
 ## [0.8.4] - 2022-05-18
 ### Fixed
 - Changing a system config value updates always the config properties to
@@ -140,8 +157,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.8.4...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.9.0...main
 
+[0.9.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.9.0
 [0.8.4]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.4
 [0.8.3]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.3
 [0.8.2]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.2
@@ -156,6 +174,7 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 [0.2.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.1.0
 
+[ref-pep440]: https://peps.python.org/pep-0440/
 [ref-issue-22]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/22
 [ref-issue-12]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/12
 [ref-issue-17]: https://github.com/brainelectronics/MyEVSE-Webinterface/issues/17
