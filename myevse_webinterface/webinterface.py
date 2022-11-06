@@ -919,12 +919,20 @@ class Webinterface(object):
     # @app.route("/perform_system_update")
     def perform_system_update(self, req, resp) -> None:
         """Process system update"""
-        if req.method == 'POST':
-            yield from req.read_form_data()
-        else:  # GET, apparently
-            # Note: parse_qs() is not a coroutine, but a normal function.
-            # But you can call it using yield from too.
-            req.parse_qs()
+        size = int(req.headers[b"Content-Length"])
+        data = yield from req.reader.readexactly(size)
+        decoded_data = data.decode()
+        form_data = GenericHelper.str_to_dict(data=decoded_data)
+
+        # Whether form data comes from GET or POST request, once parsed,
+        # it's available as req.form dictionary
+        self.logger.debug('System config user input content: {}'.
+                          format(form_data))
+        # {
+        #     'start_update': True,
+        #     'ADDITIONAL_PACKAGES': '',
+        #     'UPDATE_TYPE': '1'    # 0: stable, 1: test versions
+        # }
 
         # stop data collection and provisioning threads
         self._mb_bridge.collecting_client_data = False
@@ -943,8 +951,30 @@ class Webinterface(object):
         self._update_ongoing = True
 
         import upip
+        if form_data.get('UPDATE_TYPE', '0') == '1':
+            # 1: test versions
+            # if a package is not found on 'test.pypi.org' the official
+            # 'pypi.org/pypi' will be used
+            index_urls = [
+                'https://test.pypi.org/pypi',
+                "https://micropython.org/pi",
+                "https://pypi.org/pypi"
+            ]
+        else:
+            # 0: stable
+            index_urls = [
+                "https://micropython.org/pi",
+                "https://pypi.org/pypi"
+            ]
+        upip.index_urls = index_urls
         upip.install('myevse-webinterface')
         # 125.147ms, approx. 2 min
+
+        if form_data.get('ADDITIONAL_PACKAGES', ''):
+            for package in form_data['ADDITIONAL_PACKAGES'].split(','):
+                self.logger.debug('Installing additional custom package: {}'.
+                                  format(package.strip()))
+                upip.install(package.strip())
 
         # remove already rendered template to ensure updated ones are shown
         import os
