@@ -47,6 +47,31 @@
     <h4>Update system</h4>
       <p id="demo"></p>
       <form action="perform_system_update" method="post" id="perform_system_update_form">
+        <fieldset class="form-group">
+          <div class="row">
+            <legend class="col-form-label col-sm-10 pt-0">Update type</legend>
+            <div class="col-sm-10">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="UPDATE_TYPE" id="update_stable" value=0 checked>
+                <label class="form-check-label" for="update_stable">
+                  Stable
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="UPDATE_TYPE" id="update_test_versions" value=1>
+                <label class="form-check-label" for="update_test_versions">
+                  Test versions
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div class="form-group row">
+          <label for="additional_packages" class="col-sm-10 col-form-label">Additional packages</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="additional_packages" name="ADDITIONAL_PACKAGES" placeholder="Additional packages">
+          </div>
+        </div>
         <div class="list-group">
           <button type="submit" id="update_button" value="update" class="btn btn-lg btn-primary list-group-item active">Update</button>
           <form>
@@ -120,7 +145,12 @@
         }
       }
       xmlhttp.open('POST', url, true);
-      var data = JSON.stringify({"start_update": true});
+      var formData = new FormData(document.getElementById("perform_system_update_form"));
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      var data = JSON.stringify(Object.fromEntries(formData));
+      let o_data = JSON.parse(data);
+      o_data['start_update'] = true;
+      data = JSON.stringify(o_data);
       xmlhttp.send(data);
     };
     function update_progressbar_value() {

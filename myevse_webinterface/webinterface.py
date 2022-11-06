@@ -45,7 +45,8 @@ class Webinterface(object):
     def __init__(self, logger=None, quiet=False, name=__name__):
         # setup and configure logger if none is provided
         if logger is None:
-            logger = GenericHelper.create_logger(logger_name=self.__class__.__name__)
+            logger = GenericHelper.create_logger(
+                logger_name=self.__class__.__name__)
             GenericHelper.set_level(logger, 'debug')
         self.logger = logger
         self.logger.disabled = quiet
@@ -396,7 +397,7 @@ class Webinterface(object):
             "/setup": {
                 "title": "Setup system",
                 "color": "text-white bg-success",
-                "text": "Configure Modbus TCP port, register file and WiFi connection mode",
+                "text": "Configure Modbus TCP port, register file and WiFi connection mode",    # noqa: E501
             },
             "/reboot": {
                 "title": "Reboot",
@@ -508,7 +509,7 @@ class Webinterface(object):
             connection_result = self._wm.load_and_connect()
         elif connection_mode == self.ACCESSPOINT_MODE:
             # device configured as AccessPoint
-            # abuse connection_result variable to create an AccessPoint later on
+            # abuse connection_result variable to create an AccessPoint later
             connection_result = False
         else:
             # unknown connection mode, create an AccessPoint later on
@@ -789,21 +790,21 @@ class Webinterface(object):
         for reg_type, reg_type_data in sorted(device_data.items()):
             reg_type_table = """
             <h5>{}</h5><table class="table table-striped table-bordered table-hover"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
-            """.format(reg_type)
+            """.format(reg_type)    # noqa: E501
 
             # iterage e.g. IREGS, sorted by register
             for register, register_data in sorted(reg_type_data.items(),
-                                                  key=lambda item: item[1]['register']):
+                                                  key=lambda item: item[1]['register']):    # noqa: E501
                 register_value = register_data['val']
 
                 if (isinstance(register_data['val'], list) and
-                    len(register_data['val']) == 2):
+                        len(register_data['val']) == 2):
                     # actual a uint32_t value, reconstruct it
-                    register_value = register_data['val'][0] << 16 | register_data['val'][1]
+                    register_value = register_data['val'][0] << 16 | register_data['val'][1]    # noqa: E501
 
                 reg_type_table += """
                 <tr><th scope="row">{register}</th><td>{register_name}</td><td>{register_value}</td></tr>
-                """.format(register=register_data['register'],
+                """.format(register=register_data['register'],  # noqa: E501
                            register_name=register,
                            register_value=register_value)
 
@@ -833,8 +834,8 @@ class Webinterface(object):
                 <div class="mb-3">
                   <label for="{key}Text" class="form-label">{label}</label>
                   <input class="form-control" for="{key}Text" type="text" value="{value}" disabled readonly></div>
-                """.format(key=key, label=description, value=system_data[key])
-            except Exception as e:
+                """.format(key=key, label=description, value=system_data[key])  # noqa: E501
+            except Exception:
                 pass
 
         # finish this fieldset
@@ -918,12 +919,20 @@ class Webinterface(object):
     # @app.route("/perform_system_update")
     def perform_system_update(self, req, resp) -> None:
         """Process system update"""
-        if req.method == 'POST':
-            yield from req.read_form_data()
-        else:  # GET, apparently
-            # Note: parse_qs() is not a coroutine, but a normal function.
-            # But you can call it using yield from too.
-            req.parse_qs()
+        size = int(req.headers[b"Content-Length"])
+        data = yield from req.reader.readexactly(size)
+        decoded_data = data.decode()
+        form_data = GenericHelper.str_to_dict(data=decoded_data)
+
+        # Whether form data comes from GET or POST request, once parsed,
+        # it's available as req.form dictionary
+        self.logger.debug('System config user input content: {}'.
+                          format(form_data))
+        # {
+        #     'start_update': True,
+        #     'ADDITIONAL_PACKAGES': '',
+        #     'UPDATE_TYPE': '1'    # 0: stable, 1: test versions
+        # }
 
         # stop data collection and provisioning threads
         self._mb_bridge.collecting_client_data = False
@@ -942,8 +951,30 @@ class Webinterface(object):
         self._update_ongoing = True
 
         import upip
+        if form_data.get('UPDATE_TYPE', '0') == '1':
+            # 1: test versions
+            # if a package is not found on 'test.pypi.org' the official
+            # 'pypi.org/pypi' will be used
+            index_urls = [
+                'https://test.pypi.org/pypi',
+                "https://micropython.org/pi",
+                "https://pypi.org/pypi"
+            ]
+        else:
+            # 0: stable
+            index_urls = [
+                "https://micropython.org/pi",
+                "https://pypi.org/pypi"
+            ]
+        upip.index_urls = index_urls
         upip.install('myevse-webinterface')
         # 125.147ms, approx. 2 min
+
+        if form_data.get('ADDITIONAL_PACKAGES', ''):
+            for package in form_data['ADDITIONAL_PACKAGES'].split(','):
+                self.logger.debug('Installing additional custom package: {}'.
+                                  format(package.strip()))
+                upip.install(package.strip())
 
         # remove already rendered template to ensure updated ones are shown
         import os
