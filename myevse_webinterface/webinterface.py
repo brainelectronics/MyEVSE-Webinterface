@@ -45,7 +45,8 @@ class Webinterface(object):
     def __init__(self, logger=None, quiet=False, name=__name__):
         # setup and configure logger if none is provided
         if logger is None:
-            logger = GenericHelper.create_logger(logger_name=self.__class__.__name__)
+            logger = GenericHelper.create_logger(
+                logger_name=self.__class__.__name__)
             GenericHelper.set_level(logger, 'debug')
         self.logger = logger
         self.logger.disabled = quiet
@@ -396,7 +397,7 @@ class Webinterface(object):
             "/setup": {
                 "title": "Setup system",
                 "color": "text-white bg-success",
-                "text": "Configure Modbus TCP port, register file and WiFi connection mode",
+                "text": "Configure Modbus TCP port, register file and WiFi connection mode",    # noqa: E501
             },
             "/reboot": {
                 "title": "Reboot",
@@ -508,7 +509,7 @@ class Webinterface(object):
             connection_result = self._wm.load_and_connect()
         elif connection_mode == self.ACCESSPOINT_MODE:
             # device configured as AccessPoint
-            # abuse connection_result variable to create an AccessPoint later on
+            # abuse connection_result variable to create an AccessPoint later
             connection_result = False
         else:
             # unknown connection mode, create an AccessPoint later on
@@ -789,21 +790,21 @@ class Webinterface(object):
         for reg_type, reg_type_data in sorted(device_data.items()):
             reg_type_table = """
             <h5>{}</h5><table class="table table-striped table-bordered table-hover"><thead class="thead-dark"><tr><th scope="col">Register</th><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>
-            """.format(reg_type)
+            """.format(reg_type)    # noqa: E501
 
             # iterage e.g. IREGS, sorted by register
             for register, register_data in sorted(reg_type_data.items(),
-                                                  key=lambda item: item[1]['register']):
+                                                  key=lambda item: item[1]['register']):    # noqa: E501
                 register_value = register_data['val']
 
                 if (isinstance(register_data['val'], list) and
-                    len(register_data['val']) == 2):
+                        len(register_data['val']) == 2):
                     # actual a uint32_t value, reconstruct it
-                    register_value = register_data['val'][0] << 16 | register_data['val'][1]
+                    register_value = register_data['val'][0] << 16 | register_data['val'][1]    # noqa: E501
 
                 reg_type_table += """
                 <tr><th scope="row">{register}</th><td>{register_name}</td><td>{register_value}</td></tr>
-                """.format(register=register_data['register'],
+                """.format(register=register_data['register'],  # noqa: E501
                            register_name=register,
                            register_value=register_value)
 
@@ -833,8 +834,8 @@ class Webinterface(object):
                 <div class="mb-3">
                   <label for="{key}Text" class="form-label">{label}</label>
                   <input class="form-control" for="{key}Text" type="text" value="{value}" disabled readonly></div>
-                """.format(key=key, label=description, value=system_data[key])
-            except Exception as e:
+                """.format(key=key, label=description, value=system_data[key])  # noqa: E501
+            except Exception:
                 pass
 
         # finish this fieldset
