@@ -19,20 +19,27 @@ The current implementation does only run on a board with external SPI RAM. As
 of now up to 300kB of RAM are required. This is more than an ESP32-D4 Pico
 provides by default.
 
-## Get started
+📚 The latest documentation is available at
+[MyEVSE Webinterface ReadTheDocs][ref-rtd-myevse-webinterface] 📚
 
-### Install required tools
+<!-- MarkdownTOC -->
 
-Python3 must be installed on your system. Check the current Python version
-with the following command
+- [Quickstart](#quickstart)
+	- [Install package on board with mip or upip](#install-package-on-board-with-mip-or-upip)
+	- [Upload additional files to board](#upload-additional-files-to-board)
+- [Usage](#usage)
 
-```bash
-python --version
-python3 --version
-```
+<!-- /MarkdownTOC -->
 
-Depending on which command `Python 3.x.y` (with x.y as some numbers) is
-returned, use that command to proceed.
+## Quickstart
+
+This is a quickstart to install the `myevse-webinterface` library on a
+MicroPython board.
+
+A more detailed guide of the development environment can be found in
+[SETUP](SETUP.md), further details about the usage can be found in
+[USAGE](USAGE.md), descriptions for testing can be found in
+[TESTING](TESTING.md) and several examples in [EXAMPLES](EXAMPLES.md)
 
 ```bash
 python3 -m venv .venv
@@ -41,33 +48,45 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Flash firmware
-
-To flash the [MicroPython firmware][ref-upy-firmware-download] as described on
-the MicroPython firmware download page, use the `esptool.py` to erase the
-flash before flashing the firmware.
+### Install package on board with mip or upip
 
 ```bash
-esptool.py --chip esp32 --port /dev/tty.SLAB_USBtoUART erase_flash
-esptool.py --chip esp32 --port /dev/tty.SLAB_USBtoUART --baud 921600 write_flash -z 0x1000 esp32spiram-20220117-v1.18.bin
+rshell -p /dev/tty.SLAB_USBtoUART --editor nano
 ```
 
-### Install package on board with pip
-
-Connect to a network
+Inside the [rshell][ref-remote-upy-shell] open a REPL and execute these
+commands inside the REPL
 
 ```python
+import machine
 import network
+import time
+import mip
 station = network.WLAN(network.STA_IF)
+station.active(True)
 station.connect('SSID', 'PASSWORD')
-station.isconnected()
+time.sleep(1)
+print('Device connected to network: {}'.format(station.isconnected()))
+mip.install('myevse-webinterface', index='https://pypi.org/pypi')
+print('Installation completed')
+machine.soft_reset()
 ```
 
-and install this MicroPython packages on the device like this
+For MicroPython versions below 1.19.1 use the `upip` package instead of `mip`
 
 ```python
+import machine
+import network
+import time
 import upip
+station = network.WLAN(network.STA_IF)
+station.active(True)
+station.connect('SSID', 'PASSWORD')
+time.sleep(1)
+print('Device connected to network: {}'.format(station.isconnected()))
 upip.install('myevse-webinterface')
+print('Installation completed')
+machine.soft_reset()
 ```
 
 ### Upload additional files to board
@@ -92,54 +111,10 @@ cp boot.py /pyboard
 
 ## Usage
 
-### Available Webpages
-
-| URL            | Description          | Additional info |
-|----------------|----------------------|-----------------|
-| `/scan_result` | Latest Scan result   | Available networks as JSON |
-| `/configure`   | Manage WiFi networks |                            |
-| `/data`        | MyEVSE data          | Table of MyEVSE data       |
-| `/modbus_data` | Raw Modbus data      | Latest Modbus data as JSON |
-| `/reboot`      | Reboot system        | 							 |
-| `/select`      | Select WiFi network  | 							 |
-| `/setup`       | Setup system         | 							 |
-| `/info `       | System info          | 							 |
-| `/system_data` | Raw System info      | Latest system data as JSON |
-
-### Available ModBus registers
-
-The available registers are defined by a JSON file and placed inside the
-`/pyboard/lib/registers` folder on the board during the pip package
-installation. This registers definitions file is loaded by the
-[`Webinterface`](myevse_webinterface/webinterface.py) class function
-`setup_modbus_connection` to configure the RTU-TCP Modbus bridge.
-
-As an [example the registers](registers/modbusRegisters-MyEVSE.json) of a
-[brainelectronics MyEVSE][ref-myevse-be], [MyEVSE on Tindie][ref-myevse-tindie]
-board is provided with this repo.
-
-## Configuration
-
-The system can be configured via the [`config.json`](config.json) file. This
-file does not contain any sensitive data like network passwords or other keys.
-
-The following things can be configured by the user on the `/setup` webpage.
-
-| Name              | Description     | Default |
-|-------------------|-----------------|---------|
-| `TCP_PORT`        | ModBus TCP port | `180`   |
-| `REGISTERS`       | ModBus registers file, placed inside `/lib/registers` | [`modbusRegisters-MyEVSE.json`](modbusRegisters-MyEVSE.json) |
-| `CONNECTION_MODE` | Mode of WiFi connection | `0` |
-
-The `CONNECTION_MODE` supports the following modes
-
-| Value | Mode   | Description |
-|-------|--------|-------------|
-| `0`   | Setup  | Setup WiFi connection via initial AccessPoint `WiFiManager` |
-| `1`   | Client | Connect to the configured networks as client, fallback to an open AccessPoint otherwise |
-| `2`   | AP     | Create an open AccessPoint named `MyEVSE` |
+See [USAGE](USAGE.md) and [DOCUMENTATION](DOCUMENTATION.md)
 
 <!-- Links -->
+[ref-rtd-myevse-webinterface]: https://myevse-webinterface.readthedocs.io/en/latest/
 [ref-upy-firmware-download]: https://micropython.org/download/
 [ref-remote-upy-shell]: https://github.com/dhylands/rshell
 [ref-myevse-be]: https://brainelectronics.de/
