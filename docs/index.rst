@@ -1,4 +1,4 @@
-micropython-modbus
+MyEVSE Webinterface
 ===================================
 
 Contents
@@ -14,9 +14,9 @@ Contents
    EXAMPLES
    TESTING
    DOCUMENTATION
+   UPGRADE
    CONTRIBUTING
    myevse_webinterface
-   UPGRADE
    changelog_link
 
 Indices and tables
