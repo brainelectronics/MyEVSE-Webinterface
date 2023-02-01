@@ -19,6 +19,16 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.9.1] - 2023-02-01
+### Added
+- [.readthedocs.yaml](.readthedocs.yaml) for Read The Docs, contributes to #29
+- Dedicated file for installation and documentation instructions in new `docs` folder
+- Available endpoints and webpages documented in [USAGE](docs/USAGE.md) file
+
+### Changed
+- Changelog based releases and release candidates are created on every merge to development branch
+- Root [README](README.md) updated with `mpip` installation instructions
+
 ## [0.9.0] - 2022-11-06
 ### Added
 - The user can choose between the latest stable or latest test release version
@@ -157,8 +167,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.9.0...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.9.1...main
 
+[0.9.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.9.1
 [0.9.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.9.0
 [0.8.4]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.4
 [0.8.3]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.3
