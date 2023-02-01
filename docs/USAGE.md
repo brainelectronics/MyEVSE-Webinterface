@@ -69,5 +69,6 @@ The `CONNECTION_MODE` supports the following modes
 <!-- | `3`   | Managed     | Managed by a higher level device, for multi device usage | -->
 
 <!-- links -->
-[ref-myevse-register-file]: https://github.com/brainelectronics/myevse-webinterface/tree/develop/registers/modbusRegisters-MyEVSE.json
-
+[ref-myevse-register-file]: https://github.com/brainelectronics/MyEVSE-Webinterface/blob/main/registers/modbusRegisters-MyEVSE.json
+[ref-myevse-be]: https://brainelectronics.de/
+[ref-myevse-tindie]: https://www.tindie.com/stores/brainelectronics/
