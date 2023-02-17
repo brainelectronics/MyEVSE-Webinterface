@@ -8,6 +8,7 @@
   <meta name="author" content="Jonas Scharpf aka brainelectronics">
   <title>System Info</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <!--
   <link href="style.css" rel="stylesheet">
   <link href="bootstrap.min.css" rel="stylesheet">
