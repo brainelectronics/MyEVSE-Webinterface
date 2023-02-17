@@ -18,8 +18,10 @@ import time
 
 # custom modules
 # pip installed packages
-# https://github.com/pfalcon/picoweb
-import picoweb
+# https://github.com/miguelgrinberg/microdot
+from microdot import Request, Response, send_file
+from microdot.microdot_utemplate import render_template, init_templates
+
 # https://github.com/brainelectronics/micropython-modules
 from be_helpers import version as be_helpers_version
 from be_helpers.generic_helper import GenericHelper
@@ -41,6 +43,8 @@ class Webinterface(object):
     SETUP_MODE = 0
     CLIENT_MODE = 1
     ACCESSPOINT_MODE = 2
+
+    Response.default_content_type = 'text/html'
 
     def __init__(self, logger=None, quiet=False, name=__name__):
         # setup and configure logger if none is provided
@@ -82,6 +86,7 @@ class Webinterface(object):
         self._update_complete = False
         self._update_ongoing = False
 
+        init_templates(template_dir='lib/templates')
         self.load_config()
 
         # default level is 'warning', may use custom logger to get initial log
@@ -90,13 +95,7 @@ class Webinterface(object):
 
         self._wm = WiFiManager()
         GenericHelper.set_level(self._wm.logger, 'info')
-        # increase buffer size on send stream operations to read bigger chunks
-        # from disk, default is 128
-        self._wm.app.SEND_BUFSZ = 2048
         self.add_additional_webpages()
-
-        self._pico_web_logger = GenericHelper.create_logger('picoweb')
-        GenericHelper.set_level(self._pico_web_logger, 'warning')
 
         # run garbage collector at the end to clean up
         gc.collect()
@@ -381,16 +380,17 @@ class Webinterface(object):
 
         Add system setup and reboot pages to the list of available URLs
         """
-        self._wm.app.add_url_rule(url='/favicon.ico', func=self.serve_favicon)
-        self._wm.app.add_url_rule(url='/setup', func=self.system_config)
-        self._wm.app.add_url_rule(url='/reboot', func=self.reboot_system)
-        self._wm.app.add_url_rule(url='/save_system_config',
-                                  func=self.save_system_config)
-        self._wm.app.add_url_rule(url='/perform_reboot_system',
-                                  func=self.perform_reboot_system)
+        self._wm.add_app_route(url='/setup', func=self.system_config)
+        self._wm.add_app_route(url='/reboot', func=self.reboot_system)
+        self._wm.add_app_route(url='/save_system_config',
+                               func=self.save_system_config,
+                               methods=['POST'])
+        self._wm.add_app_route(url='/perform_reboot_system',
+                               func=self.perform_reboot_system,
+                               methods=['POST'])
 
-        self._wm.app.add_url_rule(url='/system_data', func=self.system_data)
-        self._wm.app.add_url_rule(url='/info', func=self.system_info)
+        self._wm.add_app_route(url='/system_data', func=self.system_data)
+        self._wm.add_app_route(url='/info', func=self.system_info)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
@@ -418,11 +418,10 @@ class Webinterface(object):
 
         # add Modbus data pages only if device is setup as client or AP
         if self.connection_mode in [self.CLIENT_MODE, self.ACCESSPOINT_MODE]:
-            self._wm.app.add_url_rule(url='/data', func=self.device_data)
-            self._wm.app.add_url_rule(url='/modbus_data',
-                                      func=self.modbus_data)
-            self._wm.app.add_url_rule(url='/modbus_data_table',
-                                      func=self.modbus_data_table)
+            self._wm.add_app_route(url='/data', func=self.device_data)
+            self._wm.add_app_route(url='/modbus_data', func=self.modbus_data)
+            self._wm.add_app_route(url='/modbus_data_table',
+                                   func=self.modbus_data_table)
 
             self._wm.available_urls.update({
                 "/data": {
@@ -439,9 +438,10 @@ class Webinterface(object):
 
         # add update page only in client mode
         if self.connection_mode in [self.CLIENT_MODE]:
-            self._wm.app.add_url_rule(url='/update', func=self.update_system)
-            self._wm.app.add_url_rule(url='/perform_system_update',
-                                      func=self.perform_system_update)
+            self._wm.add_app_route(url='/update', func=self.update_system)
+            self._wm.add_app_route(url='/perform_system_update',
+                                   func=self.perform_system_update,
+                                   methods=['POST'])
 
             self._wm.available_urls.update({
                 "/update": {
@@ -626,10 +626,7 @@ class Webinterface(object):
         self._wm.scan_interval = 10000
 
         device_ip = self._mb_bridge._get_network_ip()
-        self._wm.run(host=device_ip,
-                     port=80,
-                     debug=True,
-                     log=self._pico_web_logger)
+        self._wm.run(host=device_ip, port=80, debug=True)
 
         self.logger.debug('Beyond WiFiManager run function')
 
@@ -689,13 +686,9 @@ class Webinterface(object):
 
     # -------------------------------------------------------------------------
     # Webserver functions
-    # @app.route("/favicon.ico")
-    def serve_favicon(self, req, resp) -> None:
-        # yield from picoweb.sendfile(resp, "favicon.ico")
-        yield from picoweb.start_response(resp, status='204')
 
-    # @app.route("/setup")
-    def system_config(self, req, resp) -> None:
+    # @app.route('/setup')
+    def system_config(self, req: Request) -> None:
         connection_mode = self.connection_mode
 
         setup_checked = ""
@@ -709,56 +702,34 @@ class Webinterface(object):
         elif connection_mode == self.ACCESSPOINT_MODE:
             ap_checked = "checked"
 
-        yield from picoweb.start_response(resp)
-        yield from self._wm.app.render_template(writer=resp,
-                                                tmpl_name='setup.tpl',
-                                                args=(
-                                                    req,
-                                                    self.tcp_port,
-                                                    self.register_file,
-                                                    setup_checked,
-                                                    client_checked,
-                                                    ap_checked
-                                                ))
+        return render_template(template='setup.tpl',
+                               req=None,
+                               tcp_port=self.tcp_port,
+                               register_file=self.register_file,
+                               setup_checked=setup_checked,
+                               client_checked=client_checked,
+                               ap_checked=ap_checked)
 
-    # @app.route("/reboot_system")
-    def reboot_system(self, req, resp) -> None:
-        yield from picoweb.start_response(resp)
-        yield from self._wm.app.render_template(writer=resp,
-                                                tmpl_name='reboot.tpl',
-                                                args=(req, ))
+    # @app.route('/reboot_system')
+    def reboot_system(self, req: Request) -> None:
+        """Reboot the system"""
+        res = send_file('/lib/templates/reboot.tpl')
+        res.headers["Content-Type"] = "text/html"
 
-    # @app.route("/perform_reboot_system")
-    def perform_reboot_system(self, req, resp) -> None:
+        return res
+
+    # @app.route('/perform_reboot_system')
+    def perform_reboot_system(self, req: Request) -> None:
         """Process system reboot"""
-        if req.method == 'POST':
-            yield from req.read_form_data()
-        else:  # GET, apparently
-            # Note: parse_qs() is not a coroutine, but a normal function.
-            # But you can call it using yield from too.
-            req.parse_qs()
-
-        # empty response to avoid any redirects or errors due to none response
-        yield from picoweb.start_response(resp, status='204')
-
         # perform soft reset, like CTRL+D
         machine.soft_reset()
 
-    # @app.route("/save_system_config")
-    def save_system_config(self, req, resp) -> None:
+        return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
+
+    # @app.route('/save_system_config')
+    def save_system_config(self, req: Request) -> None:
         """Process saving the specified system configs"""
-        """
-        if req.method == 'POST':
-            yield from req.read_form_data()
-        else:  # GET, apparently
-            # Note: parse_qs() is not a coroutine, but a normal function.
-            # But you can call it using yield from too.
-            req.parse_qs()
-        """
-        size = int(req.headers[b"Content-Length"])
-        data = yield from req.reader.readexactly(size)
-        decoded_data = data.decode()
-        form_data = GenericHelper.str_to_dict(data=decoded_data)
+        form_data = req.json
 
         # Whether form data comes from GET or POST request, once parsed,
         # it's available as req.form dictionary
@@ -773,7 +744,7 @@ class Webinterface(object):
         self._save_system_config(data=form_data)
 
         # empty response to avoid any redirects or errors due to none response
-        yield from picoweb.start_response(resp, status='204')
+        return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
     def _render_modbus_data(self, device_data: dict) -> str:
         """
@@ -843,38 +814,30 @@ class Webinterface(object):
 
         return content
 
-    # @app.route("/data")
-    def device_data(self, req, resp) -> None:
+    # @app.route('/data')
+    def device_data(self, req: Request) -> None:
         """Provide webpage listing the latest device data as table"""
         latest_data = self._mb_bridge.client_data
         content = self._render_modbus_data(device_data=latest_data)
 
-        yield from picoweb.start_response(resp)
-        yield from self._wm.app.render_template(writer=resp,
-                                                tmpl_name='data.tpl',
-                                                args=(req, content, ))
+        return render_template(template='data.tpl', req=None, content=content)
 
-    # @app.route("/modbus_data")
-    def modbus_data(self, req, resp) -> None:
+    # @app.route('/modbus_data')
+    def modbus_data(self, req: Request) -> None:
         """Provide latest modbus data as JSON"""
-        yield from picoweb.start_response(writer=resp,
-                                          content_type="application/json")
+        # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
+        return self._mb_bridge.client_data
 
-        encoded = json.dumps(self._mb_bridge.client_data)
-        yield from resp.awrite(encoded)
-        # yield from picoweb.jsonify(self._mb_bridge.client_data)
-
-    # @app.route("/modbus_data_table")
-    def modbus_data_table(self, req, resp) -> None:
+    # @app.route('/modbus_data_table')
+    def modbus_data_table(self, req: Request) -> None:
         """Provide latest modbus data table HTML code"""
-        yield from picoweb.start_response(resp)
-
         latest_data = self._mb_bridge.client_data
         content = self._render_modbus_data(device_data=latest_data)
-        yield from resp.awrite(content)
 
-    # @app.route("/info")
-    def system_info(self, req, resp) -> None:
+        return content
+
+    # @app.route('/info')
+    def system_info(self, req: Request) -> None:
         """Provide webpage listing the latest device data"""
         latest_data = self.system_infos
 
@@ -894,35 +857,26 @@ class Webinterface(object):
 
         content = self._render_system_info(system_data=latest_data)
 
-        yield from picoweb.start_response(resp)
-        yield from self._wm.app.render_template(writer=resp,
-                                                tmpl_name='system.tpl',
-                                                args=(req, content, ))
+        return render_template(template='system.tpl', req=0, content=content)
 
-    # @app.route("/system_data")
-    def system_data(self, req, resp) -> None:
+    # @app.route('/system_data')
+    def system_data(self, req: Request) -> None:
         """Provide latest system data as JSON"""
-        yield from picoweb.start_response(writer=resp,
-                                          content_type="application/json")
+        # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
+        return self.system_infos
 
-        encoded = json.dumps(self.system_infos)
-        yield from resp.awrite(encoded)
-        # yield from picoweb.jsonify(self.system_infos)
+    # @app.route('/update')
+    def update_system(self, req: Request) -> None:
+        """Provide system update page"""
+        res = send_file('/lib/templates/update.tpl')
+        res.headers["Content-Type"] = "text/html"
 
-    # @app.route("/update")
-    def update_system(self, req, resp) -> None:
-        yield from picoweb.start_response(resp)
-        yield from self._wm.app.render_template(writer=resp,
-                                                tmpl_name='update.tpl',
-                                                args=(req, ))
+        return res
 
-    # @app.route("/perform_system_update")
-    def perform_system_update(self, req, resp) -> None:
+    # @app.route('/perform_system_update')
+    def perform_system_update(self, req: Request) -> None:
         """Process system update"""
-        size = int(req.headers[b"Content-Length"])
-        data = yield from req.reader.readexactly(size)
-        decoded_data = data.decode()
-        form_data = GenericHelper.str_to_dict(data=decoded_data)
+        form_data = req.json
 
         # Whether form data comes from GET or POST request, once parsed,
         # it's available as req.form dictionary
@@ -985,4 +939,4 @@ class Webinterface(object):
 
         self.update_complete = True
 
-        yield from picoweb.jsonify(resp, {'success': True})
+        return {'success': True}
