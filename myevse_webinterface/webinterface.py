@@ -905,21 +905,18 @@ class Webinterface(object):
         self._update_ongoing = True
 
         import upip
+        index_urls = [
+            "https://micropython.org/pi",
+            "https://pypi.org/pypi"
+        ]
         if form_data.get('UPDATE_TYPE', '0') == '1':
             # 1: test versions
-            # if a package is not found on 'test.pypi.org' the official
-            # 'pypi.org/pypi' will be used
+            # if a package is not found on listed indexes the official
+            # 'pypi.org/pypi' and 'micropython.org/pi' indexes will be used
             index_urls = [
+                'http://192.168.178.105:8089',
                 'https://test.pypi.org/pypi',
-                "https://micropython.org/pi",
-                "https://pypi.org/pypi"
-            ]
-        else:
-            # 0: stable
-            index_urls = [
-                "https://micropython.org/pi",
-                "https://pypi.org/pypi"
-            ]
+            ] + index_urls
         upip.index_urls = index_urls
         upip.install('myevse-webinterface')
         # 125.147ms, approx. 2 min
