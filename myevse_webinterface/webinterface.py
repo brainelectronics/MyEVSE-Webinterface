@@ -380,17 +380,17 @@ class Webinterface(object):
 
         Add system setup and reboot pages to the list of available URLs
         """
-        self._wm.add_app_route(url='/setup', func=self.system_config)
-        self._wm.add_app_route(url='/reboot', func=self.reboot_system)
-        self._wm.add_app_route(url='/save_system_config',
-                               func=self.save_system_config,
-                               methods=['POST'])
-        self._wm.add_app_route(url='/perform_reboot_system',
-                               func=self.perform_reboot_system,
-                               methods=['POST'])
+        self._wm.add_url_rule(url='/setup', func=self.system_config)
+        self._wm.add_url_rule(url='/reboot', func=self.reboot_system)
+        self._wm.add_url_rule(url='/save_system_config',
+                              func=self.save_system_config,
+                              methods=['POST'])
+        self._wm.add_url_rule(url='/perform_reboot_system',
+                              func=self.perform_reboot_system,
+                              methods=['POST'])
 
-        self._wm.add_app_route(url='/system_data', func=self.system_data)
-        self._wm.add_app_route(url='/info', func=self.system_info)
+        self._wm.add_url_rule(url='/system_data', func=self.system_data)
+        self._wm.add_url_rule(url='/info', func=self.system_info)
 
         # add the new "Setup" and "Reboot" page to the index page
         self._wm.available_urls = {
@@ -418,10 +418,10 @@ class Webinterface(object):
 
         # add Modbus data pages only if device is setup as client or AP
         if self.connection_mode in [self.CLIENT_MODE, self.ACCESSPOINT_MODE]:
-            self._wm.add_app_route(url='/data', func=self.device_data)
-            self._wm.add_app_route(url='/modbus_data', func=self.modbus_data)
-            self._wm.add_app_route(url='/modbus_data_table',
-                                   func=self.modbus_data_table)
+            self._wm.add_url_rule(url='/data', func=self.device_data)
+            self._wm.add_url_rule(url='/modbus_data', func=self.modbus_data)
+            self._wm.add_url_rule(url='/modbus_data_table',
+                                  func=self.modbus_data_table)
 
             self._wm.available_urls.update({
                 "/data": {
@@ -438,10 +438,10 @@ class Webinterface(object):
 
         # add update page only in client mode
         if self.connection_mode in [self.CLIENT_MODE]:
-            self._wm.add_app_route(url='/update', func=self.update_system)
-            self._wm.add_app_route(url='/perform_system_update',
-                                   func=self.perform_system_update,
-                                   methods=['POST'])
+            self._wm.add_url_rule(url='/update', func=self.update_system)
+            self._wm.add_url_rule(url='/perform_system_update',
+                                  func=self.perform_system_update,
+                                  methods=['POST'])
 
             self._wm.available_urls.update({
                 "/update": {
