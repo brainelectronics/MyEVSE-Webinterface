@@ -914,6 +914,11 @@ class Webinterface(object):
             # if a package is not found on listed indexes the official
             # 'pypi.org/pypi' and 'micropython.org/pi' indexes will be used
             index_urls = [
+                'https://test.pypi.org/pypi',
+            ] + index_urls
+        elif form_data.get('UPDATE_TYPE', '0') == '2':
+            # 2: custom pypi server
+            index_urls = [
                 'http://192.168.178.105:8089',
                 'https://test.pypi.org/pypi',
             ] + index_urls
