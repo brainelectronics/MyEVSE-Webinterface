@@ -8,6 +8,7 @@
   <meta name="author" content="Jonas Scharpf aka brainelectronics">
   <title>Setup system</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <script type="text/javascript" src="toast.js"></script>
   <style type="text/css">
     .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-color:gray;color:#fff;opacity:1;transition:.5s;visibility:visible}

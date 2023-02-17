@@ -19,6 +19,13 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
 <!-- ## [Unreleased] -->
 
 ## Released
+## [0.10.0] - 2023-02-17
+### Added
+- Custom PyPi server is used for package test version installation
+
+### Changed
+- Replace `picoweb` with `microdot`
+
 ## [0.9.1] - 2023-02-01
 ### Added
 - [.readthedocs.yaml](.readthedocs.yaml) for Read The Docs, contributes to #29
@@ -167,8 +174,9 @@ r"^\#\# \[\d{1,}[.]\d{1,}[.]\d{1,}\] \- \d{4}\-\d{2}-\d{2}$"
   [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.9.1...main
+[Unreleased]: https://github.com/brainelectronics/myevse-webinterface/compare/0.10.0...main
 
+[0.10.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.10.0
 [0.9.1]: https://github.com/brainelectronics/myevse-webinterface/tree/0.9.1
 [0.9.0]: https://github.com/brainelectronics/myevse-webinterface/tree/0.9.0
 [0.8.4]: https://github.com/brainelectronics/myevse-webinterface/tree/0.8.4
