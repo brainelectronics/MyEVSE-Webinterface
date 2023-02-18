@@ -451,7 +451,7 @@ class Webinterface(object):
                 },
             })
 
-    def _save_system_config(self, data: dict) -> None:
+    async def _save_system_config(self, data: dict) -> None:
         """
         Update and save the system configuration to file
 
@@ -500,6 +500,7 @@ class Webinterface(object):
                           format(self.connection_mode))
 
         connection_mode = self.connection_mode
+        connection_result = False
 
         if connection_mode == self.SETUP_MODE:
             # device connection not yet configured
@@ -697,7 +698,7 @@ class Webinterface(object):
     async def perform_reboot_system(self, req: Request) -> None:
         """Process system reboot"""
         # perform soft reset, like CTRL+D
-        machine.soft_reset()
+        await machine.soft_reset()
 
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
@@ -721,7 +722,7 @@ class Webinterface(object):
         # empty response to avoid any redirects or errors due to none response
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
-    def _render_modbus_data(self, device_data: dict) -> str:
+    async def _render_modbus_data(self, device_data: dict) -> str:
         """
         Render HTML table of given device data
 
@@ -762,7 +763,7 @@ class Webinterface(object):
 
         return content
 
-    def _render_system_info(self, system_data: dict) -> str:
+    async def _render_system_info(self, system_data: dict) -> str:
         """
         Render HTML fieldset of given system data
 
