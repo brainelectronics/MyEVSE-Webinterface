@@ -638,36 +638,11 @@ class Webinterface(object):
         Modbus data collection and provision are stopped. Any active WiFi
         scanning thread is stopped as well.
         """
-        start_time = time.time()
-        while True:
-            try:
-                machine.idle()
-            except KeyboardInterrupt:
-                self.logger.debug('KeyboardInterrupt, stop MB threads {}'.
-                                  format(time.time() - start_time))
-                self._pixel.clear()
-                break
-            except Exception as e:
-                self.logger.info('Exception during wait_for_irq: {}'.
-                                 format(e))
-                self._pixel.clear()
-
-        # stop data collection and provisioning threads
-        self._mb_bridge.collecting_client_data = False
-        self._mb_bridge.provisioning_host_data = False
-
-        # stop WiFi scanning thread
-        self._wm.scanning = False
-
-        # wait a bit to safely finish the may still running threads
-        time.sleep(5)
-
-        # finally turn of Neopixel and LED
-        self._pixel.clear()
-        self._led.turn_off()
-
-        app_runtime = time.ticks_diff(time.ticks_ms(), self._boot_time_ticks)
-        self.logger.debug('Application run time: {}ms'.format(app_runtime))
+        pass
+        # new endpoint '/shutdown' has been introduced with Micropython ESP
+        # WiFi Manager 1.10.0
+        # This function has to be available as the main.py file is not updated
+        # with any updates and is calling this function at some point in time
 
     @property
     def system_infos(self) -> dict:
