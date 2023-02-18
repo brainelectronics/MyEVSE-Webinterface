@@ -19,7 +19,7 @@ import time
 # custom modules
 # pip installed packages
 # https://github.com/miguelgrinberg/microdot
-from microdot import Request, Response, send_file
+from microdot.microdot_asyncio import Request, Response, send_file
 from microdot.microdot_utemplate import render_template, init_templates
 
 # https://github.com/brainelectronics/micropython-modules
@@ -451,7 +451,7 @@ class Webinterface(object):
                 },
             })
 
-    def _save_system_config(self, data: dict) -> None:
+    async def _save_system_config(self, data: dict) -> None:
         """
         Update and save the system configuration to file
 
@@ -500,6 +500,7 @@ class Webinterface(object):
                           format(self.connection_mode))
 
         connection_mode = self.connection_mode
+        connection_result = False
 
         if connection_mode == self.SETUP_MODE:
             # device connection not yet configured
@@ -638,36 +639,11 @@ class Webinterface(object):
         Modbus data collection and provision are stopped. Any active WiFi
         scanning thread is stopped as well.
         """
-        start_time = time.time()
-        while True:
-            try:
-                machine.idle()
-            except KeyboardInterrupt:
-                self.logger.debug('KeyboardInterrupt, stop MB threads {}'.
-                                  format(time.time() - start_time))
-                self._pixel.clear()
-                break
-            except Exception as e:
-                self.logger.info('Exception during wait_for_irq: {}'.
-                                 format(e))
-                self._pixel.clear()
-
-        # stop data collection and provisioning threads
-        self._mb_bridge.collecting_client_data = False
-        self._mb_bridge.provisioning_host_data = False
-
-        # stop WiFi scanning thread
-        self._wm.scanning = False
-
-        # wait a bit to safely finish the may still running threads
-        time.sleep(5)
-
-        # finally turn of Neopixel and LED
-        self._pixel.clear()
-        self._led.turn_off()
-
-        app_runtime = time.ticks_diff(time.ticks_ms(), self._boot_time_ticks)
-        self.logger.debug('Application run time: {}ms'.format(app_runtime))
+        pass
+        # new endpoint '/shutdown' has been introduced with Micropython ESP
+        # WiFi Manager 1.10.0
+        # This function has to be available as the main.py file is not updated
+        # with any updates and is calling this function at some point in time
 
     @property
     def system_infos(self) -> dict:
@@ -688,7 +664,7 @@ class Webinterface(object):
     # Webserver functions
 
     # @app.route('/setup')
-    def system_config(self, req: Request) -> None:
+    async def system_config(self, req: Request) -> None:
         connection_mode = self.connection_mode
 
         setup_checked = ""
@@ -711,7 +687,7 @@ class Webinterface(object):
                                ap_checked=ap_checked)
 
     # @app.route('/reboot_system')
-    def reboot_system(self, req: Request) -> None:
+    async def reboot_system(self, req: Request) -> None:
         """Reboot the system"""
         res = send_file('/lib/templates/reboot.tpl')
         res.headers["Content-Type"] = "text/html"
@@ -719,15 +695,15 @@ class Webinterface(object):
         return res
 
     # @app.route('/perform_reboot_system')
-    def perform_reboot_system(self, req: Request) -> None:
+    async def perform_reboot_system(self, req: Request) -> None:
         """Process system reboot"""
         # perform soft reset, like CTRL+D
-        machine.soft_reset()
+        await machine.soft_reset()
 
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
     # @app.route('/save_system_config')
-    def save_system_config(self, req: Request) -> None:
+    async def save_system_config(self, req: Request) -> None:
         """Process saving the specified system configs"""
         form_data = req.json
 
@@ -741,12 +717,12 @@ class Webinterface(object):
         #     'REGISTERS': 'modbusRegisters-MyEVSE.json'
         # }
 
-        self._save_system_config(data=form_data)
+        await self._save_system_config(data=form_data)
 
         # empty response to avoid any redirects or errors due to none response
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
-    def _render_modbus_data(self, device_data: dict) -> str:
+    async def _render_modbus_data(self, device_data: dict) -> str:
         """
         Render HTML table of given device data
 
@@ -787,7 +763,7 @@ class Webinterface(object):
 
         return content
 
-    def _render_system_info(self, system_data: dict) -> str:
+    async def _render_system_info(self, system_data: dict) -> str:
         """
         Render HTML fieldset of given system data
 
@@ -815,29 +791,29 @@ class Webinterface(object):
         return content
 
     # @app.route('/data')
-    def device_data(self, req: Request) -> None:
+    async def device_data(self, req: Request) -> None:
         """Provide webpage listing the latest device data as table"""
         latest_data = self._mb_bridge.client_data
-        content = self._render_modbus_data(device_data=latest_data)
+        content = await self._render_modbus_data(device_data=latest_data)
 
         return render_template(template='data.tpl', req=None, content=content)
 
     # @app.route('/modbus_data')
-    def modbus_data(self, req: Request) -> None:
+    async def modbus_data(self, req: Request) -> None:
         """Provide latest modbus data as JSON"""
         # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
         return self._mb_bridge.client_data
 
     # @app.route('/modbus_data_table')
-    def modbus_data_table(self, req: Request) -> None:
+    async def modbus_data_table(self, req: Request) -> None:
         """Provide latest modbus data table HTML code"""
         latest_data = self._mb_bridge.client_data
-        content = self._render_modbus_data(device_data=latest_data)
+        content = await self._render_modbus_data(device_data=latest_data)
 
         return content
 
     # @app.route('/info')
-    def system_info(self, req: Request) -> None:
+    async def system_info(self, req: Request) -> None:
         """Provide webpage listing the latest device data"""
         latest_data = self.system_infos
 
@@ -855,18 +831,18 @@ class Webinterface(object):
             'uptime': 'System uptime'
         }
 
-        content = self._render_system_info(system_data=latest_data)
+        content = await self._render_system_info(system_data=latest_data)
 
         return render_template(template='system.tpl', req=0, content=content)
 
     # @app.route('/system_data')
-    def system_data(self, req: Request) -> None:
+    async def system_data(self, req: Request) -> None:
         """Provide latest system data as JSON"""
         # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
         return self.system_infos
 
     # @app.route('/update')
-    def update_system(self, req: Request) -> None:
+    async def update_system(self, req: Request) -> None:
         """Provide system update page"""
         res = send_file('/lib/templates/update.tpl')
         res.headers["Content-Type"] = "text/html"
