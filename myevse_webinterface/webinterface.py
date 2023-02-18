@@ -19,7 +19,7 @@ import time
 # custom modules
 # pip installed packages
 # https://github.com/miguelgrinberg/microdot
-from microdot import Request, Response, send_file
+from microdot.microdot_asyncio import Request, Response, send_file
 from microdot.microdot_utemplate import render_template, init_templates
 
 # https://github.com/brainelectronics/micropython-modules
@@ -688,7 +688,7 @@ class Webinterface(object):
     # Webserver functions
 
     # @app.route('/setup')
-    def system_config(self, req: Request) -> None:
+    async def system_config(self, req: Request) -> None:
         connection_mode = self.connection_mode
 
         setup_checked = ""
@@ -711,7 +711,7 @@ class Webinterface(object):
                                ap_checked=ap_checked)
 
     # @app.route('/reboot_system')
-    def reboot_system(self, req: Request) -> None:
+    async def reboot_system(self, req: Request) -> None:
         """Reboot the system"""
         res = send_file('/lib/templates/reboot.tpl')
         res.headers["Content-Type"] = "text/html"
@@ -719,7 +719,7 @@ class Webinterface(object):
         return res
 
     # @app.route('/perform_reboot_system')
-    def perform_reboot_system(self, req: Request) -> None:
+    async def perform_reboot_system(self, req: Request) -> None:
         """Process system reboot"""
         # perform soft reset, like CTRL+D
         machine.soft_reset()
@@ -727,7 +727,7 @@ class Webinterface(object):
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
 
     # @app.route('/save_system_config')
-    def save_system_config(self, req: Request) -> None:
+    async def save_system_config(self, req: Request) -> None:
         """Process saving the specified system configs"""
         form_data = req.json
 
@@ -741,7 +741,7 @@ class Webinterface(object):
         #     'REGISTERS': 'modbusRegisters-MyEVSE.json'
         # }
 
-        self._save_system_config(data=form_data)
+        await self._save_system_config(data=form_data)
 
         # empty response to avoid any redirects or errors due to none response
         return None, 204, {'Content-Type': 'application/json; charset=UTF-8'}
@@ -815,29 +815,29 @@ class Webinterface(object):
         return content
 
     # @app.route('/data')
-    def device_data(self, req: Request) -> None:
+    async def device_data(self, req: Request) -> None:
         """Provide webpage listing the latest device data as table"""
         latest_data = self._mb_bridge.client_data
-        content = self._render_modbus_data(device_data=latest_data)
+        content = await self._render_modbus_data(device_data=latest_data)
 
         return render_template(template='data.tpl', req=None, content=content)
 
     # @app.route('/modbus_data')
-    def modbus_data(self, req: Request) -> None:
+    async def modbus_data(self, req: Request) -> None:
         """Provide latest modbus data as JSON"""
         # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
         return self._mb_bridge.client_data
 
     # @app.route('/modbus_data_table')
-    def modbus_data_table(self, req: Request) -> None:
+    async def modbus_data_table(self, req: Request) -> None:
         """Provide latest modbus data table HTML code"""
         latest_data = self._mb_bridge.client_data
-        content = self._render_modbus_data(device_data=latest_data)
+        content = await self._render_modbus_data(device_data=latest_data)
 
         return content
 
     # @app.route('/info')
-    def system_info(self, req: Request) -> None:
+    async def system_info(self, req: Request) -> None:
         """Provide webpage listing the latest device data"""
         latest_data = self.system_infos
 
@@ -855,18 +855,18 @@ class Webinterface(object):
             'uptime': 'System uptime'
         }
 
-        content = self._render_system_info(system_data=latest_data)
+        content = await self._render_system_info(system_data=latest_data)
 
         return render_template(template='system.tpl', req=0, content=content)
 
     # @app.route('/system_data')
-    def system_data(self, req: Request) -> None:
+    async def system_data(self, req: Request) -> None:
         """Provide latest system data as JSON"""
         # https://microdot.readthedocs.io/en/latest/intro.html#json-responses
         return self.system_infos
 
     # @app.route('/update')
-    def update_system(self, req: Request) -> None:
+    async def update_system(self, req: Request) -> None:
         """Provide system update page"""
         res = send_file('/lib/templates/update.tpl')
         res.headers["Content-Type"] = "text/html"
