@@ -32,6 +32,7 @@ Further examples are available in the [examples chapter](EXAMPLES.md)
 | `/modbus_data` | Raw Modbus data      | Latest Modbus data as JSON |
 | `/reboot`      | Reboot system        |                            |
 | `/system_data` | Raw System info      | Latest system data as JSON |
+| `/shutdown`    | Shutdown webserver   | Return from `run` function |
 
 ### Available ModBus registers
 
